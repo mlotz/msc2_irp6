@@ -9,13 +9,14 @@ from tempfile import mkstemp
 
 # PARAMS
 pkg_name = "msc_mlotz_pkg"
-path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConfigs/repoUniConf.cpf"
-path_to_irp_base_bringup = "/mnt/opt/ws_irp6_sim/share/irp6_bringup/"
+#path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConfigs/repoUniConf.cpf"
+relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
+path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
 hardware ="" # "no" / ""
 
 perform_inject = 1;
-
+path_to_logger_config= os.path.abspath(relpath_to_logger_config)
 
 
 #replace line method
@@ -74,38 +75,56 @@ if perform_inject:
 		print 'Irp6'+robot_name+'Scheme.addBlock("repoUni");'
 
 
-		print '## Load an OptoforceComponent component'
-		print 'loadComponent("HandForce1","OptoforceComponent")'
+		if 1:		
+			print '## Load an OptoforceComponent component'
+			print 'loadComponent("HandForce1","OptoforceComponent")'
 
-		print '## Give it a periodic activity'
-		print 'setActivity("HandForce1",0.001,3,ORO_SCHED_RT)'
-		print 'HandForce1.loadService("rosparam");'
-		print 'HandForce1.rosparam.getAll();'
+			print '## Give it a periodic activity'
+			print 'setActivity("HandForce1",0.001,3,ORO_SCHED_RT)'
+			print 'HandForce1.loadService("rosparam");'
+			print 'HandForce1.rosparam.getAll();'
 
-		print 'stream("HandForce1.force0_out", ros.comm.topic("/optoforce1/force0"))'
-		print 'stream("HandForce1.force0_scaled_out", ros.comm.topic("/optoforce1/force0_scaled"))'
-		print 'stream("HandForce1.tare_in", ros.comm.topic("/optoforce1/tare"))'
+			print 'stream("HandForce1.force0_out", ros.comm.topic("/optoforce1/force0"))'
+			print 'stream("HandForce1.force0_scaled_out", ros.comm.topic("/optoforce1/force0_scaled"))'
+			print 'stream("HandForce1.tare_in", ros.comm.topic("/optoforce1/tare"))'
 
-		print 'HandForce1.configure()'
+			print 'HandForce1.configure()'
 
 
+		if 1:
+			print '## Load an OptoforceComponent component'
+			print 'loadComponent("HandForce2","OptoforceComponent")'
 
-		print '## Load an OptoforceComponent component'
-		print 'loadComponent("HandForce2","OptoforceComponent")'
+			print '## Give it a periodic activity'
+			print 'setActivity("HandForce2",0.001,3,ORO_SCHED_RT)'
+			print 'HandForce2.loadService("rosparam");'
+			print 'HandForce2.rosparam.getAll();'
 
-		print '## Give it a periodic activity'
-		print 'setActivity("HandForce2",0.001,3,ORO_SCHED_RT)'
-		print 'HandForce2.loadService("rosparam");'
-		print 'HandForce2.rosparam.getAll();'
+			print 'stream("HandForce2.force0_out", ros.comm.topic("/optoforce2/force0"))'
+			print 'stream("HandForce2.force0_scaled_out", ros.comm.topic("/optoforce2/force0_scaled"))'
+			print 'stream("HandForce2.tare_in", ros.comm.topic("/optoforce2/tare"))'
 
-		print 'stream("HandForce2.force0_out", ros.comm.topic("/optoforce2/force0"))'
-		print 'stream("HandForce2.force0_scaled_out", ros.comm.topic("/optoforce2/force0_scaled"))'
-		print 'stream("HandForce2.tare_in", ros.comm.topic("/optoforce2/tare"))'
+			print 'HandForce2.configure()'
 
-		print 'HandForce2.configure()'
+			print 'HandForce1.start()'
+			print 'HandForce2.start()'
+		if 0:
+			print '## Load an DebugOptoforceComponent component'
+			print 'loadComponent("HandForce2","DebugOptoforceComponent")'
 
-		print 'HandForce1.start()'
-		print 'HandForce2.start()'
+			print '## Give it a periodic activity'
+			print 'setActivity("HandForce2",0.001,3,ORO_SCHED_RT)'
+			print 'HandForce2.loadService("rosparam");'
+			print 'HandForce2.rosparam.getAll();'
+
+			print 'stream("HandForce2.force0_out", ros.comm.topic("/optoforce2/force0"))'
+			print 'stream("HandForce2.force0_scaled_out", ros.comm.topic("/optoforce2/force0_scaled"))'
+			print 'stream("HandForce2.tare_in", ros.comm.topic("/optoforce2/tare"))'
+
+			print 'HandForce2.configure()'
+
+			#print 'HandForce1.start()'
+			print 'HandForce2.start()'
 
 	
 	
