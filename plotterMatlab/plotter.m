@@ -1,27 +1,53 @@
 clear all;
 close all;
 
-filename = '/home/mlotz/msc_ws_irp6/logs/reports.dat';
-plotPath = '/home/mlotz/msc_ws_irp6/plots/';
-docPath = '/home/mlotz/Praca_Magisterska/SVN/17-mlotz/ppmgr/images/';
+filename = '/home/mlotz/msc2_ws_irp6/logs/reports.dat';
+plotPath = '/home/mlotz/msc2_ws_irp6/plots/';
+docPath = '/home/mlotz/msc2_ws_irp6/dummy/';
 delimiterIn = ' ';
 headerlinesIn = 1;
 A = importdata(filename,delimiterIn,headerlinesIn);
+T = readtable(filename);
 fontsize = 25;
 
 
-xFN1 = A.data(:,1);
-yFN1= A.data(:,2);
-zFN1 = A.data(:,3);
-t = str2double(A.textdata(2:end,1));
-X = str2double(A.textdata(2:end,2));
-Y = str2double(A.textdata(2:end,3));
-% xF = str2double(A.textdata(2:end,17));
-% yF = str2double(A.textdata(2:end,18));
-% zF = str2double(A.textdata(2:end,19));
-xFN2 = str2double(A.textdata(2:end,16));
-yFN2 = str2double(A.textdata(2:end,17));
-zFN2 = str2double(A.textdata(2:end,18));
+% xFN1 = A.data(:,1);
+% yFN1= A.data(:,2);
+% zFN1 = A.data(:,3);
+% t = str2double(A.textdata(2:end,1));
+% X = str2double(A.textdata(2:end,2));
+% Y = str2double(A.textdata(2:end,3));
+%  xF = str2double(A.textdata(2:end,17));
+%  yF = str2double(A.textdata(2:end,18));
+%  zF = str2double(A.textdata(2:end,19));
+% xFN2 = str2double(A.textdata(2:end,16));
+% yFN2 = str2double(A.textdata(2:end,17));
+% zFN2 = str2double(A.textdata(2:end,18));
+
+
+% xFN1 = A.data(:,1);
+% yFN1= A.data(:,2);
+% zFN1 = A.data(:,3);
+% t = str2double(A.textdata(2:end,1));
+% X = str2double(A.textdata(2:end,2));
+% Y = str2double(A.textdata(2:end,3));
+%  xFN1 = str2double(A.textdata(2:end,16));
+%  yFN1 = str2double(A.textdata(2:end,17));
+%   zFN1 = str2double(A.textdata(2:end,18));
+% xFN2 = str2double(A.textdata(2:end,11));
+% yFN2 = str2double(A.textdata(2:end,12));
+% zFN2 = str2double(A.textdata(2:end,13));
+
+t = table2array(T(2:end,1));
+X = table2array(T(2:end,2));
+Y = table2array(T(2:end,3));
+ xFN1 = table2array(T(2:end,16));
+ yFN1 = table2array(T(2:end,17));
+  zFN1 = table2array(T(2:end,18));
+xFN2 = table2array(T(2:end,11));
+yFN2 = table2array(T(2:end,12));
+zFN2 = table2array(T(2:end,13));
+
 
 
 % f1 = figure(1);

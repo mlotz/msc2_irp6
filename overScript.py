@@ -52,36 +52,73 @@ def T2():
 	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
 	print "Irp6p: Behavior: T2 - Starting."
-	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 4.7123889804 , 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(20.0))]
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 4.7123889804 , 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
-	print "Irp6p: Behavior: T2 - done."
+	print "Irp6p: Behavior: T2 - Topdown."
 
 
 
 def T3():
-	irpos = IRPOS("IRpOS", "Irp6ot", 7)
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
-	print "Irp6ot: Behavior: T3 - Starting."
-	irpos.move_to_synchro_position(5.0)
-	joint_trajectory = [JointTrajectoryPoint([0.3,0.0, -1.5707963268, 0.0, 0.0, 4.7123889804 , 0.0], [0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(5.0))]
+	print "Irp6p: Behavior: T3 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 3.14159265359 , 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
+	print "Irp6p: Behavior: T3 - Left."
 	
 
 
-	print "Irp6ot: Behavior: T3 - done."
 
 def T4():
-	#irpos = IRPOS("IRpOS", "Irp6ot", 7 , "irp6ot_manager")
-	irpos = IRPOS("IRpOS", "Irp6ot", 7)
-	print "Irp6ot: Behavior: T4 - Starting."
-	irpos.move_to_synchro_position(10.0)
-	joint_trajectory = [JointTrajectoryPoint([0.0,0.0, -1.5707963268, 0.0, 0.0, 4.7123889804 , 0.0], [0.0,0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(15.0))]
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: T4 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 6.28318530718 , 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
+	print "Irp6p: Behavior: T4 - Left."
+def TposA():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
-	print "Irp6ot: Behavior: T4 - done."
+	print "Irp6p: Behavior: T3 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 3.34159265359 , -1.4907963268], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
+	irpos.move_along_joint_trajectory(joint_trajectory)
+	
+	print "Irp6p: Behavior: T3 - Left."
+
+def TposB():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: TposB - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 3.34159265359 , 1.65079632679], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
+	irpos.move_along_joint_trajectory(joint_trajectory)
+	
+	print "Irp6p: Behavior: T3 - Left."
+
+def TposC():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: T2 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 4.8123889804 , 1.65079632679], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
+	irpos.move_along_joint_trajectory(joint_trajectory)
+	
+	print "Irp6p: Behavior: TposC - Topdown."
+
+def TgetWeightsABC():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: getWeights - Experiment"
+	TposA()
+	time.sleep(10.0)
+	TposB()
+	time.sleep(10.0)
+	TposC()
+	time.sleep(10.0)
+
+	print "Done"
+	
 	
 def T5():
 	#irpos = IRPOS("IRpOS", "Irp6ot", 7 , "irp6ot_manager")
@@ -93,6 +130,7 @@ def T5():
 	#print str(irpos.get_tfg_joint_position())
 
 	print "Irp6ot: Behavior: T5 - done."
+
 	
 def T6():
 	#irpos = IRPOS("IRpOS", "Irp6ot", 7 , "irp6ot_manager")
@@ -745,3 +783,11 @@ if __name__ == '__main__':
 		ToContact()
 	elif sys.argv[1]=="TL":
 		TestLogging()
+	elif sys.argv[1]=="TposA":
+		TposA()
+	elif sys.argv[1]=="TposB":
+		TposB()
+	elif sys.argv[1]=="TposC":
+		TposC()
+	elif sys.argv[1]=="TgetWeightsABC":
+		TgetWeightsABC()
