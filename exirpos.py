@@ -9,7 +9,26 @@ class exirpos(IRPOS):
 	ENDC = '\033[0m'
 	REDFAIL = '\033[91m'
 	PoseInt_ON = 0
-	
+	WristOutputPose_cartesian_position_subscriber = None
+	last_WristOutputPose_cartesian_position = None	
+	WristOutputPose_lock = threading.Lock()
+
+	def WristOutputPose_cartesian_position_callback(self, data):
+		self.WristOutputPose_lock.acquire()
+		self.last_WristOutputPose_cartesian_position = data
+		#print data
+		#print self.last_WristOutputPose_cartesian_position
+		self.WristOutputPose_lock.release()	
+
+	def __init__(self, nodeName, robotName, robotJointNumbers, scheme_name):
+		self.WristOutputPose_cartesian_position_subscriber = rospy.Subscriber('/irp6p_arm/WristOutputPose', Pose, self.WristOutputPose_cartesian_position_callback)
+		#print self.WristOutputPose_cartesian_position_subscriber
+		print(self.OKGREEN+'[EXIRPOS] Class initiated.'+self.ENDC)
+		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers, scheme_name)
+		
+		
+
+
 	def seamless_move_rel_to_cartesian_pose(self, time_from_start, rel_pose):
 
 		#WARNING:
@@ -67,6 +86,13 @@ class exirpos(IRPOS):
 		self.conmanSwitch([], ['repoUni'], True)
 		print(self.OKGREEN+'[EXIRPOS] Stopped logging'+' components.'+self.ENDC)
 		#self.PoseInt_ON= 0
+
+	def get_WristOutputPose_cartesian_pose(self):
+		self.WristOutputPose_lock.acquire()
+		ret = self.last_WristOutputPose_cartesian_position
+		#print ret
+		self.WristOutputPose_lock.release()		
+		return ret
 		
 #MAIN
 

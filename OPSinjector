@@ -13,7 +13,7 @@ pkg_name = "msc_mlotz_pkg"
 relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
 path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
-hardware ="" # "no" / ""
+hardware ="no" # "no" / ""
 
 perform_inject = 1;
 path_to_logger_config= os.path.abspath(relpath_to_logger_config)
@@ -117,7 +117,10 @@ if perform_inject:
 
 		print 'addPeer("repoUni","HandForce1")'
 		#print 'repoUni.reportPort("HandForce1","force0_out")'
-		print 'repoUni.reportPort("HandForce1","force0_scaled_out")'	
+		print 'repoUni.reportPort("HandForce1","force0_scaled_out")'
+
+		#Irp6pmForwardKinematic.WristOutputPose	
+		print 'stream("Irp6pmForwardKinematic.WristOutputPose", ros.comm.topic("/irp6p_arm/WristOutputPose"))'
 
 		print '\n//END_OF_INJECTION'
 
