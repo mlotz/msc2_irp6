@@ -6,6 +6,9 @@ from exirpos import *
 import numpy as np
 from std_msgs.msg import *
 from visualization_msgs.msg import Marker
+from math import *
+from geometry_msgs.msg import *
+from tf.transformations import *
 # DEMO FUNCTIONS
 
 # POSTUMENT DEMOS
@@ -79,7 +82,7 @@ def T4():
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
 	print "Irp6p: Behavior: T4 - Left."
-def TposA():
+def TposB():
 	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
 	print "Irp6p: Behavior: T3 - Starting."
@@ -88,7 +91,7 @@ def TposA():
 	
 	print "Irp6p: Behavior: T3 - Left."
 
-def TposB():
+def TposA():
 	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
 	print "Irp6p: Behavior: TposB - Starting."
@@ -105,17 +108,37 @@ def TposC():
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
 	print "Irp6p: Behavior: TposC - Topdown."
+def TposD():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: T2 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 4.8123889804 , 1.65079632679-pi], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
+	irpos.move_along_joint_trajectory(joint_trajectory)
+	
+	print "Irp6p: Behavior: TposC - Topdown."
 
 def TgetWeightsABC():
-	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+	irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
+
 
 	print "Irp6p: Behavior: getWeights - Experiment"
 	TposA()
-	time.sleep(10.0)
+	HandForce1_bias = irpos.get_HandForce1().vector.z
 	TposB()
-	time.sleep(10.0)
+	HandForce1_fb = irpos.get_HandForce1()
+	HandForce1_w = (HandForce1_fb.vector.z-HandForce1_bias) / 2.0
+	WGPx = -HandForce1_fb.vector.y / (2*HandForce1_w)
+	WGPy = HandForce1_fb.vector.x / (2*HandForce1_w)
+	print HandForce1_w
+	print WGPx
+	print WGPy
 	TposC()
-	time.sleep(10.0)
+	HandForce1_fc = irpos.get_HandForce1()
+	WGPz = (HandForce1_fc.vector.y/HandForce1_w)-(HandForce1_fb.vector.y/(2*HandForce1_w))
+	print WGPz
+	#print irpos.get_HandForce1()
+	#TposD()
+	#print irpos.get_HandForce1()
 
 	print "Done"
 	
@@ -728,6 +751,105 @@ def setDot(nrId,c, reactionForceAngle, vectorAngle, givenForceAngle):
 def rvizzz():
 	rviz_pub.publish(marker)
 
+def Tholder():
+	#irpos = IRPOS("IRpOS", "Irp6ot", 7 , "irp6ot_manager")
+	#irpos = IRPOS("IRpOS", "Irp6ot", 7)
+	#irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+	irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
+	print "Irp6ot: Behavior: arrows."
+
+	current = irpos.get_cartesian_pose()
+	
+	currentWristOutputPose = irpos.get_WristOutputPose_cartesian_pose()
+	#print current
+
+	print currentWristOutputPose
+	#marker = Marker()
+	
+
+	marker.header.frame_id = "/pl_base"
+	#marker.header.stamp = rospy.get_rostime() + rospy.Duration(0.002)
+	marker.ns = "basic_shapes"
+	marker.id = 11
+	marker.type = marker.SPHERE
+	marker.action = marker.ADD
+	#marker.pose.position.x = 1.0
+	#marker.pose.position.y = 0.0
+	#marker.pose.position.z = 1.0
+
+
+	marker.pose.position.x = currentWristOutputPose.position.x
+	marker.pose.position.y = currentWristOutputPose.position.y
+	marker.pose.position.z = currentWristOutputPose.position.z 
+	origin, xaxis, yaxis, zaxis = (0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)
+	q_current_wrist = [currentWristOutputPose.orientation.x, currentWristOutputPose.orientation.y, currentWristOutputPose.orientation.z, currentWristOutputPose.orientation.w]
+	qt1 = quaternion_about_axis(0.0, yaxis)
+	qt2 = quaternion_about_axis(-1.57079632679, zaxis)
+	newRotation = quaternion_multiply(q_current_wrist, qt1)
+	newRotation = quaternion_multiply(newRotation, qt2)
+	print newRotation
+	
+	q_sensorFrame = [0.0,0.0,-1.0,0.0]
+
+	q_gravity = [0.0,0.707,0.0,0.707]
+	q_gravity_in_wrist = quaternion_multiply(q_gravity, q_current_wrist)
+
+	marker.pose.orientation.x = q_gravity_in_wrist[0]
+	marker.pose.orientation.y = q_gravity_in_wrist[1]
+	marker.pose.orientation.z = q_gravity_in_wrist[2]
+	marker.pose.orientation.w = q_gravity_in_wrist[3]
+
+	#ret
+	#marker.pose.position.x = currentWristOutputPose.position.x
+	#marker.pose.position.y = currentWristOutputPose.position.y
+	#marker.pose.position.z = currentWristOutputPose.position.z 
+	#marker.pose.orientation.x = currentWristOutputPose.orientation.x
+	#marker.pose.orientation.y = currentWristOutputPose.orientation.y
+	#marker.pose.orientation.z = currentWristOutputPose.orientation.z
+	#marker.pose.orientation.w = currentWristOutputPose.orientation.w
+	marker.scale.x = 0.003
+	marker.scale.y = 0.003
+	marker.scale.z = 0.003
+	marker.color.r = 0.0
+	marker.color.g = 0.0
+	marker.color.b = 0.0
+	marker.color.a = 1.0
+	#marker.lifetime = rospy.Duration(10.0)
+	
+	#print(str(rviz_pub.getNumSubscribers()))
+	
+	
+	#arrow
+	marker.scale.x = 0.5
+	marker.scale.y = 0.02
+	marker.scale.z = 0.02
+	marker.id = 0
+	marker.type = marker.ARROW
+	
+	#marker.pose.orientation.x = newRotation[0]
+	#marker.pose.orientation.y = newRotation[1]
+	#marker.pose.orientation.z = newRotation[2]
+	#marker.pose.orientation.w = newRotation[3]
+
+	marker.color.r = 1.0
+	marker.color.g = 0.0
+	marker.color.b = 0.0
+	marker.color.a = 2.0
+	rviz_pub.publish(marker)
+
+
+
+	print "done"
+
+def Ttest():
+	irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
+	print "Irp6ot: Behavior: arrows."
+
+	current = irpos.get_HandForce2()
+	print current
+
+
+
 #MAIN
 irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
 rviz_pub = rospy.Publisher('visualization_marker', Marker)
@@ -791,3 +913,7 @@ if __name__ == '__main__':
 		TposC()
 	elif sys.argv[1]=="TgetWeightsABC":
 		TgetWeightsABC()
+	elif sys.argv[1]=="Ttest":
+		Ttest()
+	elif sys.argv[1]=="Tholder":
+		Tholder()

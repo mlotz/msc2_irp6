@@ -13,7 +13,7 @@ pkg_name = "msc_mlotz_pkg"
 relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
 path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
-hardware ="no" # "no" / ""
+hardware ="" # "no" / ""
 
 perform_inject = 1;
 path_to_logger_config= os.path.abspath(relpath_to_logger_config)
@@ -77,7 +77,7 @@ if perform_inject:
 
 		if 1:		
 			print '## Load an OptoforceComponent component'
-			print 'loadComponent("HandForce1","OptoforceComponent")'
+			print 'loadComponent("HandForce1","CustomOptoforceComponent")'
 
 			print '## Give it a periodic activity'
 			print 'setActivity("HandForce1",0.001,3,ORO_SCHED_RT)'
@@ -93,7 +93,7 @@ if perform_inject:
 
 		if 1:
 			print '## Load an OptoforceComponent component'
-			print 'loadComponent("HandForce2","OptoforceComponent")'
+			print 'loadComponent("HandForce2","CustomOptoforceComponent")'
 
 			print '## Give it a periodic activity'
 			print 'setActivity("HandForce2",0.001,3,ORO_SCHED_RT)'
@@ -122,6 +122,19 @@ if perform_inject:
 		#Irp6pmForwardKinematic.WristOutputPose	
 		print 'stream("Irp6pmForwardKinematic.WristOutputPose", ros.comm.topic("/irp6p_arm/WristOutputPose"))'
 
+
+		#OptoCompensator
+		print 'loadComponent("OptoCompensator1","OptoCompensator")'
+		print 'OptoCompensator1.loadService("rosparam");'
+		print 'OptoCompensator1.rosparam.getAll();'
+		print 'OptoCompensator1.configure()'
+		print 'connect("OptoCompensator1.CurrentWristPose", "Irp6pmForwardKinematic.WristOutputPose", ConnPolicy())'
+		print 'connect("OptoCompensator1.CurrentHandForceInput", "HandForce1.force0_scaled_out", ConnPolicy())'
+		print 'connect("OptoCompensator1.Tool", "Irp6pmToolInt.CartesianPositionCommand", ConnPolicy())'
+		print 'stream("OptoCompensator1.OutputCompensatedForce", ros.comm.topic("/optoCompensator1/force_out"));'
+		print 'setActivity("OptoCompensator1",0.001,3,ORO_SCHED_RT)'
+		print 'stream("OptoCompensator1.ToolGravityParam", ros.comm.topic("/optoCompensator1/tg_param"))'
+		#print 'OptoCompensator1.start()'
 		print '\n//END_OF_INJECTION'
 
 	    processing_foo1s = False
@@ -199,6 +212,23 @@ if perform_inject:
 		print '        counts_nc_0_x: 11738'
 		print '        counts_nc_0_y: 10593'
 		print '        counts_nc_0_z: 16276'
+		print '      OptoCompensator1:'
+		print '        is_right_turn_frame: true'
+		print '        tool_weight: 0.511083744'
+		print '        gravity_arm_in_wrist:'
+		print '          x: 0.251605995717'
+		print '          y: 0.148229481197'
+		print '          z: 1.02216748768'
+		print '        sensor_frame:'
+		print '          orientation:'
+		print '            w: 0.0' 
+		print '            x: 0.0'
+		print '            y: 0.0'
+		print '            z: -1.0'
+		print '          position:'
+		print '            x: 0.0'
+		print '            y: 0.0'
+		print '            z: 0.09'
 
 	    processing_foo1s = False
 	  print line,

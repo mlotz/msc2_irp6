@@ -51,7 +51,7 @@
 using RTT::InputPort;
 using RTT::OutputPort;
 
-class DebugOptoforceComponent : public RTT::TaskContext {
+class CustomOptoforceComponent : public RTT::TaskContext {
  private:
   OptoforceSensor *os_;
 
@@ -100,7 +100,7 @@ class DebugOptoforceComponent : public RTT::TaskContext {
   bool test_mode_;
 
  public:
-  explicit DebugOptoforceComponent(const std::string& name)
+  explicit CustomOptoforceComponent(const std::string& name)
       : TaskContext(name, PreOperational),
         os_(NULL),
         n_sensors_(0),
@@ -135,11 +135,9 @@ class DebugOptoforceComponent : public RTT::TaskContext {
     this->addProperty("counts_nc_2_x", counts_nc_2_x_);
     this->addProperty("counts_nc_2_y", counts_nc_2_y_);
     this->addProperty("counts_nc_2_z", counts_nc_2_z_);
-
-	std::cout <<"DebugOptoforceComponent: constructor is done"<<std::endl;
   }
 
-  ~DebugOptoforceComponent() {
+  ~CustomOptoforceComponent() {
   }
 
   void cleanupHook() {
@@ -151,13 +149,13 @@ class DebugOptoforceComponent : public RTT::TaskContext {
 
   // RTT configure hook
   bool configureHook() {
-    std::cout << "DebugOptoforceComponent::configureHook, parameters: dev_name="
+    std::cout << "CustomOptoforceComponent::configureHook, parameters: dev_name="
               << dev_name_ << "  prefix=" << prefix_ << "  n_sensors="
               << n_sensors_ << std::endl;
-    if (!test_mode_) { std::cout<<"not a test mode"<<std::endl;
+    if (!test_mode_) {
       if (!dev_name_.empty() && !prefix_.empty() && n_sensors_ > 0
-      && os_ == NULL) { std::cout<<"first if is fine"<<std::endl;
-        if (n_sensors_ == 3) { std::cout<<"yup 3 sensors"<<std::endl;
+      && os_ == NULL) {
+        if (n_sensors_ == 3) {
           os_ = new OptoforceSensor(dev_name_, OptoforceSensor::SensorType4Ch,
                                     can_rx_id_, can_tx_id_);
 
@@ -168,11 +166,11 @@ class DebugOptoforceComponent : public RTT::TaskContext {
           port_force1_scaled_out_.setDataSample(force1_scaled_out_);
           port_force2_scaled_out_.setDataSample(force2_scaled_out_);
 
-          total_force_out_.setZero();
+          //total_force_out_.setZero();
 
           if (os_->isDevOpened()) {
             os_->setConfiguration(speed_, filter_, OptoforceSensor::ZeroSet);
-            std::cout << "DebugOptoforceComponent::configureHook success - 3"
+            std::cout << "CustomOptoforceComponent::configureHook success"
                       << std::endl;
             return true;
           }
@@ -182,22 +180,22 @@ class DebugOptoforceComponent : public RTT::TaskContext {
 
           port_force0_out_.setDataSample(force0_out_);
 
-          total_force_out_.setZero();
+          //total_force_out_.setZero();
 
           if (os_->isDevOpened()) {
             os_->setConfiguration(speed_, filter_, OptoforceSensor::ZeroSet);
-            std::cout << "DebugOptoforceComponent::configureHook success - 1"
+            std::cout << "CustomOptoforceComponent::configureHook success"
                       << std::endl;
             return true;
           }
         }
       }
 
-      std::cout << "DebugOptoforceComponent::configureHook failure" << std::endl;
+      std::cout << "CustomOptoforceComponent::configureHook failure" << std::endl;
       return false;
 
     } else {
-      std::cout << "DebugOptoforceComponent test mode::configureHook success"
+      std::cout << "CustomOptoforceComponent test mode::configureHook success"
                 << std::endl;
       return true;
     }
@@ -221,13 +219,6 @@ class DebugOptoforceComponent : public RTT::TaskContext {
 
   // RTT update hook
   void updateHook() {
-		//std::cout<<os_->isDevOpened()<<std::endl;
-	//force0_out_.header.stamp = ros::Time::now();	
-	//force0_out_.vector.x = 7;
-          //force0_out_.vector.y = 7;
-          //force0_out_.vector.z = 7;
-	//port_force0_out_.write(force0_out_);
-	
     if (!test_mode_) {
       if (port_tare_in_.read(tare_in_) == RTT::NewData) {
         os_->setConfiguration(speed_, filter_, OptoforceSensor::ZeroRestore);
@@ -306,10 +297,8 @@ class DebugOptoforceComponent : public RTT::TaskContext {
       }
     } else if (n_sensors_ == 1) {
       Eigen::Vector3d f;
-      if (!test_mode_) {	
-	//std::cout<<"1t"<<std::endl;
+      if (!test_mode_) {
         if (os_->read(&f)) {
-		//std::cout<<"1tf"<<std::endl;
           Eigen::Vector3d f_scaled = scaleForce(f, counts_nc_0_x_,
                                                 counts_nc_0_y_, counts_nc_0_z_,
                                                 nominal_capacity_fx_,
@@ -336,9 +325,6 @@ class DebugOptoforceComponent : public RTT::TaskContext {
         port_total_force_out_.write(total_force_out_);
       }
     }
-
-
-
-  } 
+  }
 };
-ORO_CREATE_COMPONENT(DebugOptoforceComponent)
+ORO_CREATE_COMPONENT(CustomOptoforceComponent)

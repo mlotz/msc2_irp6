@@ -13,15 +13,30 @@ class exirpos(IRPOS):
 	last_WristOutputPose_cartesian_position = None	
 	WristOutputPose_lock = threading.Lock()
 
+	HandForce1_subscriber = None
+	last_HandForce1 = None	
+	HandForce1_lock = threading.Lock()
+	HandForce2_subscriber = None
+	last_HandForce2 = None	
+	HandForce2_lock = threading.Lock()
+
 	def WristOutputPose_cartesian_position_callback(self, data):
 		self.WristOutputPose_lock.acquire()
 		self.last_WristOutputPose_cartesian_position = data
-		#print data
-		#print self.last_WristOutputPose_cartesian_position
-		self.WristOutputPose_lock.release()	
+		self.WristOutputPose_lock.release()
+	def HandForce1_callback(self, data):
+		self.HandForce1_lock.acquire()
+		self.last_HandForce1 = data
+		self.HandForce1_lock.release()
+	def HandForce2_callback(self, data):
+		self.HandForce2_lock.acquire()
+		self.last_HandForce2 = data
+		self.HandForce2_lock.release()	
 
 	def __init__(self, nodeName, robotName, robotJointNumbers, scheme_name):
 		self.WristOutputPose_cartesian_position_subscriber = rospy.Subscriber('/irp6p_arm/WristOutputPose', Pose, self.WristOutputPose_cartesian_position_callback)
+		self.HandForce1_subscriber = rospy.Subscriber('/optoforce1/force0_scaled', Vector3Stamped, self.HandForce1_callback)
+		self.HandForce2_subscriber = rospy.Subscriber('/optoforce2/force0_scaled', Vector3Stamped, self.HandForce2_callback)
 		#print self.WristOutputPose_cartesian_position_subscriber
 		print(self.OKGREEN+'[EXIRPOS] Class initiated.'+self.ENDC)
 		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers, scheme_name)
@@ -92,6 +107,16 @@ class exirpos(IRPOS):
 		ret = self.last_WristOutputPose_cartesian_position
 		#print ret
 		self.WristOutputPose_lock.release()		
+		return ret
+	def get_HandForce1(self):
+		self.HandForce1_lock.acquire()
+		ret = self.last_HandForce1
+		self.HandForce1_lock.release()		
+		return ret
+	def get_HandForce2(self):
+		self.HandForce2_lock.acquire()
+		ret = self.last_HandForce2
+		self.HandForce2_lock.release()		
 		return ret
 		
 #MAIN

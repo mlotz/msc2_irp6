@@ -381,7 +381,7 @@ def Tholder():
 	marker.pose.position.z = currentWristOutputPose.position.z 
 	origin, xaxis, yaxis, zaxis = (0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)
 	q1 = [currentWristOutputPose.orientation.x, currentWristOutputPose.orientation.y, currentWristOutputPose.orientation.z, currentWristOutputPose.orientation.w]
-	qt1 = quaternion_about_axis(-1.57079632679, yaxis)
+	qt1 = quaternion_about_axis(0.0, yaxis)
 	qt2 = quaternion_about_axis(-1.57079632679, zaxis)
 	newRotation = quaternion_multiply(q1, qt1)
 	newRotation = quaternion_multiply(newRotation, qt2)

@@ -28,8 +28,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OPTOCOMPENSATOR_H_
-#define OPTOCOMPENSATOR_H_
+#ifndef SLOWERFORCETRANSFORMATION_H_
+#define SLOWERFORCETRANSFORMATION_H_
 
 #include <string>
 
@@ -37,46 +37,50 @@
 #include <rtt/Port.hpp>
 #include <geometry_msgs/Pose.h>
 #include "geometry_msgs/Wrench.h"
-#include "geometry_msgs/Vector3Stamped.h"
 #include "kdl_conversions/kdl_msg.h"
 #include <Eigen/Dense>
 #include <force_control_msgs/ToolGravityParam.h>
 
-class OptoCompensator : public RTT::TaskContext {
-	public:
- 		explicit OptoCompensator(const std::string& name);
-		virtual ~OptoCompensator();
-		virtual bool configureHook();
-		virtual bool startHook();
-		void updateHook();
-	private:
-		RTT::InputPort<geometry_msgs::Pose> port_current_wrist_pose_;
+class SlowerForceTransformation : public RTT::TaskContext {
+ public:
+  explicit SlowerForceTransformation(const std::string& name);
+  virtual ~SlowerForceTransformation();
 
-		RTT::InputPort<geometry_msgs::Vector3Stamped> port_HandForce_input_;
-		//RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_slow_filtered_wrench_;
-		//RTT::OutputPort<geometry_msgs::Wrench> port_output_wrist_wrench_;
-		RTT::OutputPort<geometry_msgs::Vector3Stamped> port_Force_out_;
-		RTT::InputPort<geometry_msgs::Pose> port_tool_;
+  virtual bool configureHook();
+  virtual bool startHook();
+  void updateHook();
 
-		RTT::InputPort<force_control_msgs::ToolGravityParam> port_current_tool_gravity_param_;
+ private:
+  RTT::InputPort<geometry_msgs::Pose> port_current_wrist_pose_;
 
-		KDL::Wrench force_offset_;
-		geometry_msgs::Vector3 force_zero;
-		geometry_msgs::Pose force_zero_position;
+  RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_fast_filtered_wrench_;
+  RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_slow_filtered_wrench_;
+  RTT::OutputPort<geometry_msgs::Wrench> port_output_wrist_wrench_;
+  RTT::OutputPort<geometry_msgs::Wrench> port_output_end_effector_wrench_;
+  RTT::InputPort<geometry_msgs::Pose> port_tool_;
 
-		// ForceTrans
-		double tool_weight_property_;
-		geometry_msgs::Vector3 gravity_arm_in_wrist_property_;
+  RTT::InputPort<force_control_msgs::ToolGravityParam> port_current_tool_gravity_param_;
 
-		KDL::Wrench gravity_force_torque_in_base_;
-		KDL::Wrench reaction_force_torque_in_wrist_;
-		KDL::Vector gravity_arm_in_wrist_kdl_;
-		KDL::Frame tool_mass_center_translation_;
+  KDL::Wrench force_offset_;
+int counter;
 
-		geometry_msgs::Pose sensor_frame_property_;
-		bool is_right_turn_frame_property_;
+  // ForceTrans
+  double tool_weight_property_;
+  geometry_msgs::Vector3 gravity_arm_in_wrist_property_;
 
-		KDL::Frame sensor_frame_kdl_;
+  KDL::Wrench gravity_force_torque_in_base_;
+  KDL::Wrench reaction_force_torque_in_wrist_;
+  KDL::Vector gravity_arm_in_wrist_kdl_;
+  KDL::Frame tool_mass_center_translation_;
+
+  geometry_msgs::Pose sensor_frame_property_;
+  bool is_right_turn_frame_property_;
+
+  KDL::Frame sensor_frame_kdl_;
+
+	geometry_msgs::Wrench SLOW_output_wrist_wrench;
+	geometry_msgs::Wrench SLOW_output_end_effector_wrench;
+
 };
 
-#endif // OPTOCOMPENSATOR_H_
+#endif // SLOWERFORCETRANSFORMATION_H_
