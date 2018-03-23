@@ -13,6 +13,10 @@ class exirpos(IRPOS):
 	last_WristOutputPose_cartesian_position = None	
 	WristOutputPose_lock = threading.Lock()
 
+	SensorPose_subscriber = None
+	last_SensorPose = None	
+	SensorPose_lock = threading.Lock()
+
 	HandForce1_subscriber = None
 	last_HandForce1 = None	
 	HandForce1_lock = threading.Lock()
@@ -32,11 +36,16 @@ class exirpos(IRPOS):
 		self.HandForce2_lock.acquire()
 		self.last_HandForce2 = data
 		self.HandForce2_lock.release()	
+	def SensorPose_callback(self, data):
+		self.SensorPose_lock.acquire()
+		self.last_SensorPose = data
+		self.SensorPose_lock.release()	
 
 	def __init__(self, nodeName, robotName, robotJointNumbers, scheme_name):
 		self.WristOutputPose_cartesian_position_subscriber = rospy.Subscriber('/irp6p_arm/WristOutputPose', Pose, self.WristOutputPose_cartesian_position_callback)
 		self.HandForce1_subscriber = rospy.Subscriber('/optoforce1/force0_scaled', Vector3Stamped, self.HandForce1_callback)
 		self.HandForce2_subscriber = rospy.Subscriber('/optoforce2/force0_scaled', Vector3Stamped, self.HandForce2_callback)
+		self.SensorPose_subscriber = rospy.Subscriber('/optoCompensator1/sensor_pose', Pose, self.SensorPose_callback)
 		#print self.WristOutputPose_cartesian_position_subscriber
 		print(self.OKGREEN+'[EXIRPOS] Class initiated.'+self.ENDC)
 		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers, scheme_name)
@@ -117,6 +126,11 @@ class exirpos(IRPOS):
 		self.HandForce2_lock.acquire()
 		ret = self.last_HandForce2
 		self.HandForce2_lock.release()		
+		return ret
+	def get_SensorPose(self):
+		self.SensorPose_lock.acquire()
+		ret = self.last_SensorPose
+		self.SensorPose_lock.release()		
 		return ret
 		
 #MAIN

@@ -41,6 +41,8 @@
 #include "kdl_conversions/kdl_msg.h"
 #include <Eigen/Dense>
 #include <force_control_msgs/ToolGravityParam.h>
+#include "rvizMarkers.h"
+#include <visualization_msgs/Marker.h>
 
 class OptoCompensator : public RTT::TaskContext {
 	public:
@@ -57,6 +59,7 @@ class OptoCompensator : public RTT::TaskContext {
 		//RTT::OutputPort<geometry_msgs::Wrench> port_output_wrist_wrench_;
 		RTT::OutputPort<geometry_msgs::Vector3Stamped> port_Force_out_;
 		RTT::InputPort<geometry_msgs::Pose> port_tool_;
+		RTT::OutputPort<geometry_msgs::Pose> port_SensorPose_out_;
 
 		RTT::InputPort<force_control_msgs::ToolGravityParam> port_current_tool_gravity_param_;
 

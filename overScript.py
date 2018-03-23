@@ -831,9 +831,9 @@ def Tholder():
 	#marker.pose.orientation.z = newRotation[2]
 	#marker.pose.orientation.w = newRotation[3]
 
-	marker.color.r = 1.0
+	marker.color.r = 0.0
 	marker.color.g = 0.0
-	marker.color.b = 0.0
+	marker.color.b = 1.0
 	marker.color.a = 2.0
 	rviz_pub.publish(marker)
 

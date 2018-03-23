@@ -35,6 +35,7 @@
 #include "OptoCompensator.h"
 #include "eigen_conversions/eigen_msg.h"
 
+
 OptoCompensator::OptoCompensator(const std::string& name)
     : RTT::TaskContext(name, PreOperational) {
 	//Inputs
@@ -44,6 +45,7 @@ OptoCompensator::OptoCompensator(const std::string& name)
   this->ports()->addPort("Tool", port_tool_);
 	//Outputs
   this->ports()->addPort("OutputCompensatedForce", port_Force_out_);
+  this->ports()->addPort("OutputSensorPose", port_SensorPose_out_);
  
 	//Properites
   this->addProperty("sensor_frame", sensor_frame_property_);
@@ -107,9 +109,9 @@ void OptoCompensator::updateHook() {
 	KDL::Frame current_wrist_pose_kdl;
 	tf::poseMsgToKDL(current_wrist_pose, current_wrist_pose_kdl);
 	
-	Eigen::Quaterniond gravityBaseOrientation(0.0, 0.707, 0.0, 0.707); 
-	Eigen::Quaterniond base2end(current_wrist_pose.orientation.x,current_wrist_pose.orientation.y,current_wrist_pose.orientation.z,current_wrist_pose.orientation.w);
-	Eigen::Quaterniond gravityInEnd = gravityBaseOrientation * base2end ;
+	//Eigen::Quaterniond gravityBaseOrientation(0.0, 0.707, 0.0, 0.707); 
+	//Eigen::Quaterniond base2end(current_wrist_pose.orientation.x,current_wrist_pose.orientation.y,current_wrist_pose.orientation.z,current_wrist_pose.orientation.w);
+	//Eigen::Quaterniond gravityInEnd = gravityBaseOrientation * base2end ;
 
 	// odczyt sily
 	geometry_msgs::Vector3Stamped force_in;
@@ -117,28 +119,38 @@ void OptoCompensator::updateHook() {
 	geometry_msgs::Vector3Stamped force_out;
 	port_HandForce_input_.read(force_in);
 	current_force = force_in.vector;
-	//
 	
-	//
+	//zerowanie czujnika
 	zeroed_force = force_in.vector;
 
 	zeroed_force.x -= force_zero.x;
 	zeroed_force.y -= force_zero.y;
 	zeroed_force.z -= force_zero.z;
 	
-	
+	//Rotacja R w ukladzie (0) przylozona do ukladu nadgarstka
+	KDL::Rotation R;
+	R.DoRotX(M_PI/2);
+	R.DoRotY(-M_PI/2);
+	KDL::Frame T_pose_kdl = current_wrist_pose_kdl ;
+	//Przejscie z ukladu nadgarstka do czujnika
+	T_pose_kdl.M = R*current_wrist_pose_kdl.M;
+	geometry_msgs::Pose T_sensorPose_out;
+	tf::poseKDLToMsg(T_pose_kdl, T_sensorPose_out);
+	//z czujnika do (0)
+	KDL::Frame T_poseZero_kdl = current_wrist_pose_kdl;
+	T_poseZero_kdl.M = (T_pose_kdl.Inverse()).M*T_pose_kdl.M;
+	//
+	//w tym miejscudzialania w ukladzie zerowym!
+	//
+	//powrot z (0) do ukladu czujnika
+	T_poseZero_kdl.M = (T_pose_kdl).M*T_poseZero_kdl.M ;
+	geometry_msgs::Pose T_poseZero_out;
+	tf::poseKDLToMsg(T_poseZero_kdl, T_poseZero_out);
 
-	//grav->base
-  	//KDL::Wrench gravity_force_torque_in_sensor = (current_wrist_pose_kdl.Inverse()).M * gravity_force_torque_in_base_;
-	//KDL::Wrench zeroed_force_wrench(KDL::Vector(zeroed_force.x, zeroed_force.y, zeroed_force.z), KDL::Vector(0.0, 0.0, 0.0));
-	//zeroed_force_wrench = sensor_frame_kdl_ * zeroed_force_wrench;
-	//KDL::Wrench computed_force = zeroed_force_wrench - gravity_force_torque_in_base_; 
-	//computed_force = current_wrist_pose_kdl.M * (-computed_force);
-	//geometry_msgs::Wrench force_out_wrench;
-	//tf::wrenchKDLToMsg(computed_force, force_out_wrench);
+	port_SensorPose_out_.write(T_poseZero_out);
+
 	
-	//std::cout<<current_wrist_pose.orientation<<std::endl;
-	
+	//Wyjsciowy wektor sily
 	force_out.header.seq = force_in.header.seq;	
 	force_out.vector = zeroed_force;
 

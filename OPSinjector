@@ -134,6 +134,7 @@ if perform_inject:
 		print 'stream("OptoCompensator1.OutputCompensatedForce", ros.comm.topic("/optoCompensator1/force_out"));'
 		print 'setActivity("OptoCompensator1",0.001,3,ORO_SCHED_RT)'
 		print 'stream("OptoCompensator1.ToolGravityParam", ros.comm.topic("/optoCompensator1/tg_param"))'
+		print 'stream("OptoCompensator1.OutputSensorPose", ros.comm.topic("/optoCompensator1/sensor_pose"))'
 		#print 'OptoCompensator1.start()'
 		print '\n//END_OF_INJECTION'
 
