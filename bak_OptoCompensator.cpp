@@ -89,26 +89,13 @@ bool OptoCompensator::startHook() {
 
 
 force_zero = current_force.vector;
-//force_zero_position = current_wrist_pose;
-KDL::Frame current_wrist_pose_kdl;
-tf::poseMsgToKDL(current_wrist_pose, current_wrist_pose_kdl);
-
-KDL::Rotation R;
-R.DoRotX(M_PI/2);
-R.DoRotY(-M_PI/2);
-KDL::Frame T_pose_kdl = current_wrist_pose_kdl ;
-T_pose_kdl.M = R*current_wrist_pose_kdl.M;
-
-zeroWrench_KDL = KDL::Wrench(KDL::Vector(current_force.vector.x, current_force.vector.y, current_force.vector.z), KDL::Vector(0.0,0.0,0.0));
-
+force_zero_position = current_wrist_pose;
 
 
 gravity_force_torque_in_base_ = KDL::Wrench(
       KDL::Vector(0.0, 0.0, -tool_weight_property_),
       KDL::Vector(0.0, 0.0, 0.0));
 
-//zeroWrench_KDL = ZeroWrench_KDL - gravity_force_torque_in_base_;
-zeroWrench_KDL = zeroWrench_KDL;
 
   return true;
 }
@@ -132,22 +119,13 @@ void OptoCompensator::updateHook() {
 	geometry_msgs::Vector3Stamped force_out;
 	port_HandForce_input_.read(force_in);
 	current_force = force_in.vector;
-	KDL::Wrench current_force_KDL = KDL::Wrench(
-      KDL::Vector(current_force.x, current_force.y, current_force.z),
-      KDL::Vector(0.0, 0.0, 0.0)); 
-	KDL::Wrench zeroed_force_KDL;
+	
 	//zerowanie czujnika
-	//zeroed_force = force_in.vector;
+	zeroed_force = force_in.vector;
 
-	//zeroed_force.x -= force_zero.x;
-	//zeroed_force.y -= force_zero.y;
-	//zeroed_force.z -= force_zero.z;
-	zeroed_force_KDL = current_force_KDL - zeroWrench_KDL;
-	geometry_msgs::Wrench zeroed_force_geom;
-	tf::wrenchKDLToMsg(zeroed_force_KDL, zeroed_force_geom);
-	zeroed_force.x = zeroed_force_geom.force.x;
-	zeroed_force.y = zeroed_force_geom.force.y;
-	zeroed_force.z = zeroed_force_geom.force.z;
+	zeroed_force.x -= force_zero.x;
+	zeroed_force.y -= force_zero.y;
+	zeroed_force.z -= force_zero.z;
 	
 	//Rotacja R w ukladzie (0) przylozona do ukladu nadgarstka
 	KDL::Rotation R;
@@ -162,26 +140,14 @@ void OptoCompensator::updateHook() {
 	KDL::Frame T_poseZero_kdl = current_wrist_pose_kdl;
 	T_poseZero_kdl.M = (T_pose_kdl.Inverse()).M*T_pose_kdl.M;
 	//
-	KDL::Wrench zeroed_force_KDL_in0 = (T_pose_kdl.Inverse()).M * zeroed_force_KDL;
-	//
 	//w tym miejscudzialania w ukladzie zerowym!
-	//zeroed_force_KDL_in0 = zeroed_force_KDL_in0 - gravity_force_torque_in_base_;
-	zeroed_force_KDL_in0 = zeroed_force_KDL + zeroed_force_KDL_in0 - gravity_force_torque_in_base_;
 	//
 	//powrot z (0) do ukladu czujnika
 	T_poseZero_kdl.M = (T_pose_kdl).M*T_poseZero_kdl.M ;
 	geometry_msgs::Pose T_poseZero_out;
 	tf::poseKDLToMsg(T_poseZero_kdl, T_poseZero_out);
+
 	port_SensorPose_out_.write(T_poseZero_out);
-	//
-	zeroed_force_KDL_in0 = T_pose_kdl.M * (zeroed_force_KDL_in0);
-	geometry_msgs::Wrench forceHolder;
-  	tf::wrenchKDLToMsg(zeroed_force_KDL_in0, forceHolder);
-	zeroed_force.x = forceHolder.force.x;
-	zeroed_force.y = forceHolder.force.y;
-	zeroed_force.z = forceHolder.force.z +tool_weight_property_ ; //Dafuq?
-	
-	
 
 	
 	//Wyjsciowy wektor sily

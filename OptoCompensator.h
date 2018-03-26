@@ -66,6 +66,7 @@ class OptoCompensator : public RTT::TaskContext {
 		KDL::Wrench force_offset_;
 		geometry_msgs::Vector3 force_zero;
 		geometry_msgs::Pose force_zero_position;
+		KDL::Wrench zeroWrench_KDL;
 
 		// ForceTrans
 		double tool_weight_property_;
