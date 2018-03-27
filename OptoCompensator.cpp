@@ -52,6 +52,7 @@ OptoCompensator::OptoCompensator(const std::string& name)
   this->addProperty("is_right_turn_frame", is_right_turn_frame_property_);
   this->addProperty("tool_weight", tool_weight_property_);
   this->addProperty("gravity_arm_in_wrist", gravity_arm_in_wrist_property_);
+  this->addProperty("weightInBpos", weightInBpos_);
 }
 
 OptoCompensator::~OptoCompensator() {
@@ -93,22 +94,24 @@ force_zero = current_force.vector;
 KDL::Frame current_wrist_pose_kdl;
 tf::poseMsgToKDL(current_wrist_pose, current_wrist_pose_kdl);
 
-KDL::Rotation R;
-R.DoRotX(M_PI/2);
-R.DoRotY(-M_PI/2);
-KDL::Frame T_pose_kdl = current_wrist_pose_kdl ;
-T_pose_kdl.M = R*current_wrist_pose_kdl.M;
+
 
 zeroWrench_KDL = KDL::Wrench(KDL::Vector(current_force.vector.x, current_force.vector.y, current_force.vector.z), KDL::Vector(0.0,0.0,0.0));
 
 
 
+//gravity_force_torque_in_base_ = KDL::Wrench(
+//      KDL::Vector(0.0, 0.0, -tool_weight_property_),
+//      KDL::Vector(0.0, 0.0, 0.0));
 gravity_force_torque_in_base_ = KDL::Wrench(
-      KDL::Vector(0.0, 0.0, -tool_weight_property_),
+      KDL::Vector(-weightInBpos_.x, -weightInBpos_.y, -weightInBpos_.z),
       KDL::Vector(0.0, 0.0, 0.0));
 
 //zeroWrench_KDL = ZeroWrench_KDL - gravity_force_torque_in_base_;
-zeroWrench_KDL = zeroWrench_KDL;
+
+tool_mass_center_translation_ = KDL::Frame(KDL::Rotation(),
+                                             gravity_arm_in_wrist_kdl_);
+
 
   return true;
 }
@@ -152,10 +155,10 @@ void OptoCompensator::updateHook() {
 	//Rotacja R w ukladzie (0) przylozona do ukladu nadgarstka
 	KDL::Rotation R;
 	R.DoRotX(M_PI/2);
-	R.DoRotY(-M_PI/2);
+	R.DoRotZ(M_PI/2);
 	KDL::Frame T_pose_kdl = current_wrist_pose_kdl ;
 	//Przejscie z ukladu nadgarstka do czujnika
-	T_pose_kdl.M = R*current_wrist_pose_kdl.M;
+	T_pose_kdl.M = current_wrist_pose_kdl.M*R;
 	geometry_msgs::Pose T_sensorPose_out;
 	tf::poseKDLToMsg(T_pose_kdl, T_sensorPose_out);
 	//z czujnika do (0)
@@ -166,20 +169,27 @@ void OptoCompensator::updateHook() {
 	//
 	//w tym miejscudzialania w ukladzie zerowym!
 	//zeroed_force_KDL_in0 = zeroed_force_KDL_in0 - gravity_force_torque_in_base_;
-	zeroed_force_KDL_in0 = zeroed_force_KDL + zeroed_force_KDL_in0 - gravity_force_torque_in_base_;
+	//zeroed_force_KDL_in0 = zeroed_force_KDL - zeroed_force_KDL_in0 - gravity_force_torque_in_base_;
+	//KDL::Wrench compForce = -(zeroed_force_KDL_in0 - gravity_force_torque_in_base_ - zeroWrench_KDL);
+	//KDL::Wrench compForce = zeroed_force_KDL - zeroWrench_KDL - gravity_force_torque_in_base_;
+	//KDL::Wrench compForce = zeroed_force_KDL_in0;
+	KDL::Wrench compForce = zeroed_force_KDL_in0 +gravity_force_torque_in_base_ - zeroWrench_KDL;
+
+
 	//
 	//powrot z (0) do ukladu czujnika
 	T_poseZero_kdl.M = (T_pose_kdl).M*T_poseZero_kdl.M ;
 	geometry_msgs::Pose T_poseZero_out;
 	tf::poseKDLToMsg(T_poseZero_kdl, T_poseZero_out);
-	port_SensorPose_out_.write(T_poseZero_out);
+	//port_SensorPose_out_.write(T_poseZero_out);
+	port_SensorPose_out_.write(T_sensorPose_out);
 	//
-	zeroed_force_KDL_in0 = T_pose_kdl.M * (zeroed_force_KDL_in0);
+	compForce = (T_pose_kdl).M * (compForce);
 	geometry_msgs::Wrench forceHolder;
-  	tf::wrenchKDLToMsg(zeroed_force_KDL_in0, forceHolder);
-	zeroed_force.x = forceHolder.force.x;
-	zeroed_force.y = forceHolder.force.y;
-	zeroed_force.z = forceHolder.force.z +tool_weight_property_ ; //Dafuq?
+  	tf::wrenchKDLToMsg(compForce, forceHolder);
+	zeroed_force.x = forceHolder.force.x -weightInBpos_.x;
+	zeroed_force.y = forceHolder.force.y -weightInBpos_.y;
+	zeroed_force.z = forceHolder.force.z -weightInBpos_.z; //Dafuq?
 	
 	
 

@@ -81,6 +81,8 @@ class OptoCompensator : public RTT::TaskContext {
 		bool is_right_turn_frame_property_;
 
 		KDL::Frame sensor_frame_kdl_;
+
+		geometry_msgs::Vector3 weightInBpos_;
 };
 
 #endif // OPTOCOMPENSATOR_H_
