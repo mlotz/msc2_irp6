@@ -58,6 +58,7 @@ class OptoCompensator : public RTT::TaskContext {
 		//RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_slow_filtered_wrench_;
 		//RTT::OutputPort<geometry_msgs::Wrench> port_output_wrist_wrench_;
 		RTT::OutputPort<geometry_msgs::Vector3Stamped> port_Force_out_;
+		RTT::OutputPort<geometry_msgs::Vector3Stamped> port_zeroed_Force_out_;
 		RTT::InputPort<geometry_msgs::Pose> port_tool_;
 		RTT::OutputPort<geometry_msgs::Pose> port_SensorPose_out_;
 

@@ -9,14 +9,14 @@ from tempfile import mkstemp
 
 # PARAMS
 pkg_name = "msc_mlotz_pkg"
-#path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConfigs/repoUniConf.cpf"
+path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConfigs/repoUniConf.cpf"
 relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
 path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
 hardware ="" # "no" / ""
 
 perform_inject = 1;
-path_to_logger_config= os.path.abspath(relpath_to_logger_config)
+#path_to_logger_config= os.path.abspath(relpath_to_logger_config)
 
 
 #replace line method
@@ -135,7 +135,22 @@ if perform_inject:
 		print 'setActivity("OptoCompensator1",0.001,3,ORO_SCHED_RT)'
 		print 'stream("OptoCompensator1.ToolGravityParam", ros.comm.topic("/optoCompensator1/tg_param"))'
 		print 'stream("OptoCompensator1.OutputSensorPose", ros.comm.topic("/optoCompensator1/sensor_pose"))'
+		print 'stream("OptoCompensator1.OutputZeroedForce", ros.comm.topic("/optoCompensator1/zero_force_out"))'
 		#print 'OptoCompensator1.start()'
+
+
+		print '//Compensator evaluation - Reporting component'
+		print 'loadComponent("repoOptoCompensator1","OCL::FileReporting")'
+		print 'loadService("repoOptoCompensator1","marshalling")'
+		print 'addPeer("repoOptoCompensator1","OptoCompensator1")'
+		print 'repoOptoCompensator1.setPeriod(0.002)'
+
+		print 'repoOptoCompensator1.reportPort("OptoCompensator1","OutputZeroedForce")'
+		print 'repoOptoCompensator1.reportPort("OptoCompensator1","OutputCompensatedForce")'
+		
+		print 'repoOptoCompensator1.marshalling.loadProperties("'+path_to_logger_config+'")'
+		print 'addPeer("Irp6'+robot_name+'Scheme", "repoOptoCompensator1");'
+		print 'Irp6'+robot_name+'Scheme.addBlock("repoOptoCompensator1");'
 		print '\n//END_OF_INJECTION'
 
 	    processing_foo1s = False

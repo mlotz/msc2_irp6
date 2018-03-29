@@ -46,6 +46,7 @@ OptoCompensator::OptoCompensator(const std::string& name)
 	//Outputs
   this->ports()->addPort("OutputCompensatedForce", port_Force_out_);
   this->ports()->addPort("OutputSensorPose", port_SensorPose_out_);
+  this->ports()->addPort("OutputZeroedForce", port_zeroed_Force_out_);
  
 	//Properites
   this->addProperty("sensor_frame", sensor_frame_property_);
@@ -131,8 +132,8 @@ void OptoCompensator::updateHook() {
 
 	// odczyt sily
 	geometry_msgs::Vector3Stamped force_in;
-	geometry_msgs::Vector3 current_force,zeroed_force;
-	geometry_msgs::Vector3Stamped force_out;
+	geometry_msgs::Vector3 current_force,zeroed_force,compensated_force;
+	geometry_msgs::Vector3Stamped force_out, zeroed_force_out;
 	port_HandForce_input_.read(force_in);
 	current_force = force_in.vector;
 	KDL::Wrench current_force_KDL = KDL::Wrench(
@@ -173,8 +174,14 @@ void OptoCompensator::updateHook() {
 	//KDL::Wrench compForce = -(zeroed_force_KDL_in0 - gravity_force_torque_in_base_ - zeroWrench_KDL);
 	//KDL::Wrench compForce = zeroed_force_KDL - zeroWrench_KDL - gravity_force_torque_in_base_;
 	//KDL::Wrench compForce = zeroed_force_KDL_in0;
-	KDL::Wrench compForce = zeroed_force_KDL_in0 +gravity_force_torque_in_base_ - zeroWrench_KDL;
 
+	//v1
+	//KDL::Wrench compForce = zeroed_force_KDL_in0 + gravity_force_torque_in_base_ - zeroWrench_KDL;
+
+	KDL::Wrench compForce = (T_pose_kdl.Inverse()).M * current_force_KDL  + gravity_force_torque_in_base_ + (T_pose_kdl.Inverse()).M *gravity_force_torque_in_base_;
+
+	 KDL::Wrench compForceV2 =zeroed_force_KDL + T_pose_kdl.M * gravity_force_torque_in_base_ + gravity_force_torque_in_base_;
+	//compForceV2 = (T_pose_kdl.Inverse()).M * (compForceV2);
 
 	//
 	//powrot z (0) do ukladu czujnika
@@ -187,19 +194,26 @@ void OptoCompensator::updateHook() {
 	compForce = (T_pose_kdl).M * (compForce);
 	geometry_msgs::Wrench forceHolder;
   	tf::wrenchKDLToMsg(compForce, forceHolder);
-	zeroed_force.x = forceHolder.force.x -weightInBpos_.x;
-	zeroed_force.y = forceHolder.force.y -weightInBpos_.y;
-	zeroed_force.z = forceHolder.force.z -weightInBpos_.z; //Dafuq?
-	
+	//compensated_force.x = forceHolder.force.x -weightInBpos_.x;
+	//compensated_force.y = forceHolder.force.y -weightInBpos_.y;
+	//compensated_force.z = forceHolder.force.z -weightInBpos_.z; //Dafuq?
+	compensated_force.x = forceHolder.force.x;
+	compensated_force.y = forceHolder.force.y;
+	compensated_force.z = forceHolder.force.z;
 	
 
 	
 	//Wyjsciowy wektor sily
 	force_out.header.seq = force_in.header.seq;	
-	force_out.vector = zeroed_force;
+	force_out.vector = compensated_force;
 
 	port_Force_out_.write(force_out);
-
+	
+	//porownawczy wyzerowany wektor sily
+	zeroed_force_out.header.seq = force_in.header.seq;
+	zeroed_force_out.vector = zeroed_force;
+	
+	port_zeroed_Force_out_.write(zeroed_force_out);
 }
 
 ORO_CREATE_COMPONENT(OptoCompensator)
