@@ -54,6 +54,8 @@ OptoCompensator::OptoCompensator(const std::string& name)
   this->addProperty("tool_weight", tool_weight_property_);
   this->addProperty("gravity_arm_in_wrist", gravity_arm_in_wrist_property_);
   this->addProperty("weightInBpos", weightInBpos_);
+  this->addProperty("wrench2sensor_R_param", wrench2sensor_R_param_);
+  this->addProperty("zeroing_offset", zeroing_offset_);
 }
 
 OptoCompensator::~OptoCompensator() {
@@ -91,7 +93,7 @@ bool OptoCompensator::startHook() {
 
 
 force_zero = current_force.vector;
-//force_zero_position = current_wrist_pose;
+force_zero_position = current_wrist_pose;
 KDL::Frame current_wrist_pose_kdl;
 tf::poseMsgToKDL(current_wrist_pose, current_wrist_pose_kdl);
 
@@ -125,6 +127,8 @@ void OptoCompensator::updateHook() {
 	port_current_wrist_pose_.read(current_wrist_pose);
 	KDL::Frame current_wrist_pose_kdl;
 	tf::poseMsgToKDL(current_wrist_pose, current_wrist_pose_kdl);
+
+	
 	
 	//Eigen::Quaterniond gravityBaseOrientation(0.0, 0.707, 0.0, 0.707); 
 	//Eigen::Quaterniond base2end(current_wrist_pose.orientation.x,current_wrist_pose.orientation.y,current_wrist_pose.orientation.z,current_wrist_pose.orientation.w);
@@ -140,13 +144,15 @@ void OptoCompensator::updateHook() {
       KDL::Vector(current_force.x, current_force.y, current_force.z),
       KDL::Vector(0.0, 0.0, 0.0)); 
 	KDL::Wrench zeroed_force_KDL;
+	KDL::Frame force_zero_position_kdl;
+	tf::poseMsgToKDL(force_zero_position, force_zero_position_kdl);
 	//zerowanie czujnika
 	//zeroed_force = force_in.vector;
 
 	//zeroed_force.x -= force_zero.x;
 	//zeroed_force.y -= force_zero.y;
 	//zeroed_force.z -= force_zero.z;
-	zeroed_force_KDL = current_force_KDL - zeroWrench_KDL;
+	zeroed_force_KDL = current_force_KDL;// - zeroWrench_KDL;
 	geometry_msgs::Wrench zeroed_force_geom;
 	tf::wrenchKDLToMsg(zeroed_force_KDL, zeroed_force_geom);
 	zeroed_force.x = zeroed_force_geom.force.x;
@@ -155,10 +161,17 @@ void OptoCompensator::updateHook() {
 	
 	//Rotacja R w ukladzie (0) przylozona do ukladu nadgarstka
 	KDL::Rotation R;
-	R.DoRotX(M_PI/2);
-	R.DoRotZ(M_PI/2);
+	//R.DoRotX(M_PI/2);
+	//R.DoRotZ(M_PI/2);
+	//R.DoRotX(M_PI);
+	R = R.Quaternion((double)wrench2sensor_R_param_.x,(double)wrench2sensor_R_param_.y,(double)wrench2sensor_R_param_.z,(double)wrench2sensor_R_param_.w);
 	KDL::Frame T_pose_kdl = current_wrist_pose_kdl ;
 	//Przejscie z ukladu nadgarstka do czujnika
+
+	//double ox,oy,oz,ow;
+	//R.GetQuaternion(ox,oy,oz,ow);
+	//std::cout<<"x:"<<ox<<"y:"<<oy<<"z:"<<oz<<"w:"<<ow<<std::endl;
+	//std::cout<<wrench2sensor_R_param_<<std::endl;
 	T_pose_kdl.M = current_wrist_pose_kdl.M*R;
 	geometry_msgs::Pose T_sensorPose_out;
 	tf::poseKDLToMsg(T_pose_kdl, T_sensorPose_out);
@@ -178,9 +191,15 @@ void OptoCompensator::updateHook() {
 	//v1
 	//KDL::Wrench compForce = zeroed_force_KDL_in0 + gravity_force_torque_in_base_ - zeroWrench_KDL;
 
-	KDL::Wrench compForce = (T_pose_kdl.Inverse()).M * current_force_KDL  + gravity_force_torque_in_base_ + (T_pose_kdl.Inverse()).M *gravity_force_torque_in_base_;
+	KDL::Wrench compForce = (T_pose_kdl.Inverse()).M * zeroed_force_KDL  + gravity_force_torque_in_base_ + (T_pose_kdl.Inverse()).M *gravity_force_torque_in_base_;
 
-	 KDL::Wrench compForceV2 =zeroed_force_KDL + T_pose_kdl.M * gravity_force_torque_in_base_ + gravity_force_torque_in_base_;
+	//Best	 
+	KDL::Wrench compForceV2 = zeroed_force_KDL + T_pose_kdl.M * gravity_force_torque_in_base_ + gravity_force_torque_in_base_;
+
+
+	// V3
+	compForce = (T_pose_kdl.Inverse()).M * zeroed_force_KDL  + gravity_force_torque_in_base_ + (T_pose_kdl.Inverse()).M *gravity_force_torque_in_base_;
+	
 	//compForceV2 = (T_pose_kdl.Inverse()).M * (compForceV2);
 
 	//
@@ -197,9 +216,9 @@ void OptoCompensator::updateHook() {
 	//compensated_force.x = forceHolder.force.x -weightInBpos_.x;
 	//compensated_force.y = forceHolder.force.y -weightInBpos_.y;
 	//compensated_force.z = forceHolder.force.z -weightInBpos_.z; //Dafuq?
-	compensated_force.x = forceHolder.force.x;
-	compensated_force.y = forceHolder.force.y;
-	compensated_force.z = forceHolder.force.z;
+	compensated_force.x = forceHolder.force.x +zeroing_offset_.x;
+	compensated_force.y = forceHolder.force.y +zeroing_offset_.y;
+	compensated_force.z = forceHolder.force.z +zeroing_offset_.z;
 	
 
 	

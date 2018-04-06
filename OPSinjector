@@ -123,7 +123,7 @@ if perform_inject:
 		print 'stream("Irp6pmForwardKinematic.WristOutputPose", ros.comm.topic("/irp6p_arm/WristOutputPose"))'
 
 
-		#OptoCompensator
+		#OptoCompensator1
 		print 'loadComponent("OptoCompensator1","OptoCompensator")'
 		print 'OptoCompensator1.loadService("rosparam");'
 		print 'OptoCompensator1.rosparam.getAll();'
@@ -138,19 +138,50 @@ if perform_inject:
 		print 'stream("OptoCompensator1.OutputZeroedForce", ros.comm.topic("/optoCompensator1/zero_force_out"))'
 		#print 'OptoCompensator1.start()'
 
+		#OptoCompensator2
+		print 'loadComponent("OptoCompensator2","OptoCompensator")'
+		print 'OptoCompensator2.loadService("rosparam");'
+		print 'OptoCompensator2.rosparam.getAll();'
+		print 'OptoCompensator2.configure()'
+		print 'connect("OptoCompensator2.CurrentWristPose", "Irp6pmForwardKinematic.WristOutputPose", ConnPolicy())'
+		print 'connect("OptoCompensator2.CurrentHandForceInput", "HandForce2.force0_scaled_out", ConnPolicy())'
+		print 'connect("OptoCompensator2.Tool", "Irp6pmToolInt.CartesianPositionCommand", ConnPolicy())'
+		print 'stream("OptoCompensator2.OutputCompensatedForce", ros.comm.topic("/optoCompensator2/force_out"));'
+		print 'setActivity("OptoCompensator2",0.001,3,ORO_SCHED_RT)'
+		print 'stream("OptoCompensator2.ToolGravityParam", ros.comm.topic("/optoCompensator2/tg_param"))'
+		print 'stream("OptoCompensator2.OutputSensorPose", ros.comm.topic("/optoCompensator2/sensor_pose"))'
+		print 'stream("OptoCompensator2.OutputZeroedForce", ros.comm.topic("/optoCompensator2/zero_force_out"))'
+		#print 'OptoCompensator1.start()'
 
-		print '//Compensator evaluation - Reporting component'
+
+		#Optoreporters		
+		print '//Compensator1 evaluation - Reporting component'
 		print 'loadComponent("repoOptoCompensator1","OCL::FileReporting")'
 		print 'loadService("repoOptoCompensator1","marshalling")'
 		print 'addPeer("repoOptoCompensator1","OptoCompensator1")'
+		print 'addPeer("repoOptoCompensator1","OptoCompensator2")'
 		print 'repoOptoCompensator1.setPeriod(0.002)'
 
 		print 'repoOptoCompensator1.reportPort("OptoCompensator1","OutputZeroedForce")'
 		print 'repoOptoCompensator1.reportPort("OptoCompensator1","OutputCompensatedForce")'
+		print 'repoOptoCompensator1.reportPort("OptoCompensator2","OutputZeroedForce")'
+		print 'repoOptoCompensator1.reportPort("OptoCompensator2","OutputCompensatedForce")'
 		
 		print 'repoOptoCompensator1.marshalling.loadProperties("'+path_to_logger_config+'")'
 		print 'addPeer("Irp6'+robot_name+'Scheme", "repoOptoCompensator1");'
 		print 'Irp6'+robot_name+'Scheme.addBlock("repoOptoCompensator1");'
+
+
+		#OptoControler
+		print '//OptoController'
+		print 'loadComponent("OptoController","OptoController")'
+		print 'connect("OptoCompensator1.OutputCompensatedForce", "OptoController.port_HandForce1_in", ConnPolicy())'
+		print 'connect("OptoCompensator2.OutputCompensatedForce", "OptoController.port_HandForce2_in", ConnPolicy())'
+		print 'connect("OptoController.CurrentEndEffectorPose", "Irp6pmForwardKinematic.WristOutputPose", ConnPolicy())'
+		print 'stream("OptoController.OutputEndEffectorPose", ros.comm.topic("/optoController/OutputPose"))'
+		print 'OptoController.configure'
+		print 'repoOptoController.setPeriod(0.002)'
+	
 		print '\n//END_OF_INJECTION'
 
 	    processing_foo1s = False
@@ -249,6 +280,45 @@ if perform_inject:
 		print '            x: 0.0'
 		print '            y: 0.0'
 		print '            z: 0.09'
+		print '        wrench2sensor_R_param:'
+		print '          x: 0.5'
+		print '          y: -0.5'
+		print '          z: 0.5'
+		print '          w: 0.5'
+		print '        zeroing_offset:'
+		print '          x: 0.0'
+		print '          y: 0.0'
+		print '          z: 0.0'
+		print '      OptoCompensator2:'
+		print '        is_right_turn_frame: true'
+		print '        tool_weight: 0.511083744'
+		print '        gravity_arm_in_wrist:'
+		print '          x: 0.0'
+		print '          y: 0.0'
+		print '          z: 0.0'
+		print '        weightInBpos:'
+		print '          x: 0.119557459'
+		print '          y: 0.133589532'
+		print '          z: 0.609605911'
+		print '        sensor_frame:'
+		print '          orientation:'
+		print '            w: 0.0' 
+		print '            x: 0.0'
+		print '            y: 0.0'
+		print '            z: -1.0'
+		print '          position:'
+		print '            x: 0.0'
+		print '            y: 0.0'
+		print '            z: 0.09'
+		print '        wrench2sensor_R_param:'
+		print '          x: 0.5'
+		print '          y: 0.5'
+		print '          z: 0.5'
+		print '          w: -0.5'
+		print '        zeroing_offset:'
+		print '          x: 0.0'
+		print '          y: 0.2'
+		print '          z: 1.2'
 
 	    processing_foo1s = False
 	  print line,

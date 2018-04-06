@@ -1,3 +1,11 @@
 x:0.119557459
 y:0.133589532
 z:0.609605911
+
+
+OptoCompenstor1 rotation quaternion:
+x:0.5y:-0.5z:0.5w:0.5
+OptoCompensator2 rotation quaternion:
+x:0.5y:0.5z:0.5w:-0.5
+
+

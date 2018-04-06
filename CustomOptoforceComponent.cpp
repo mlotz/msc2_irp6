@@ -166,7 +166,7 @@ class CustomOptoforceComponent : public RTT::TaskContext {
           port_force1_scaled_out_.setDataSample(force1_scaled_out_);
           port_force2_scaled_out_.setDataSample(force2_scaled_out_);
 
-          //total_force_out_.setZero();
+          total_force_out_.setZero();
 
           if (os_->isDevOpened()) {
             os_->setConfiguration(speed_, filter_, OptoforceSensor::ZeroSet);
@@ -180,7 +180,7 @@ class CustomOptoforceComponent : public RTT::TaskContext {
 
           port_force0_out_.setDataSample(force0_out_);
 
-          //total_force_out_.setZero();
+          total_force_out_.setZero();
 
           if (os_->isDevOpened()) {
             os_->setConfiguration(speed_, filter_, OptoforceSensor::ZeroSet);

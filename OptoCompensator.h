@@ -84,6 +84,8 @@ class OptoCompensator : public RTT::TaskContext {
 		KDL::Frame sensor_frame_kdl_;
 
 		geometry_msgs::Vector3 weightInBpos_;
+		geometry_msgs::Vector3  zeroing_offset_;
+		geometry_msgs::Quaternion wrench2sensor_R_param_;
 };
 
 #endif // OPTOCOMPENSATOR_H_
