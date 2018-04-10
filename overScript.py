@@ -162,7 +162,7 @@ def T6():
 	print "Irp6ot: Behavior: T6 - Grabbing."
 	# grabbed 0.061
 	# dropped 0.065
-	irpos.tfg_to_joint_position(0.061, 10.0)
+	irpos.tfg_to_joint_position(0.074, 10.0)
 	
 	print str(irpos.get_tfg_joint_position())
 

@@ -66,6 +66,11 @@ class OptoController : public RTT::TaskContext {
   RTT::InputPort<force_control_msgs::ForceControl> port_current_fcl_param_;
   RTT::OutputPort<bool> port_generator_active_;
   RTT::InputPort<bool> port_is_synchronised_;
+  
+  RTT::InputPort<Eigen::VectorXd> tfgJointInput_;
+  RTT::OutputPort<Eigen::VectorXd> tfgJointOutput_;
+  Eigen::VectorXd current_tfgJoint;
+
 
   KDL::Frame cl_ef_pose_kdl_;
   KDL::Twist p_vel_;

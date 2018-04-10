@@ -42,12 +42,16 @@ OptoController::OptoController(const std::string& name)
                          port_current_end_effector_pose_);
   this->ports()->addPort("OutputEndEffectorPose",
                          port_output_end_effector_pose_);
+
   this->ports()->addPort("port_HandForce1_in", port_HandForce1_in_);
   this->ports()->addPort("port_HandForce2_in", port_HandForce2_in_);
 
   this->ports()->addPort("CurrentFclParam", port_current_fcl_param_);
   this->ports()->addPort("GeneratorActiveOut", port_generator_active_);
   this->ports()->addPort("IsSynchronisedIn", port_is_synchronised_);
+  
+  this->ports()->addPort("tfgJointInput", tfgJointInput_);
+  this->ports()->addPort("tfgJointOutput", tfgJointOutput_);
 }
 
 OptoController::~OptoController() {
@@ -58,8 +62,10 @@ bool OptoController::configureHook() {
 }
 
 bool OptoController::startHook() {
- 
-  return true;
+	//bool is_synchronised = true;
+	tfgJointInput_.read(current_tfgJoint);
+	port_generator_active_.write(true);
+  	return true;
 }
 
 void OptoController::stopHook() {
@@ -70,10 +76,17 @@ void OptoController::updateHook() {
   port_generator_active_.write(true);
   // current wrench determination
 	geometry_msgs::Vector3Stamped H1,H2;
-	port_HandForce1_in_.read(H1);
-	port_HandForce2_in_.read(H2);
+	//port_HandForce1_in_.read(H1);
+	//port_HandForce2_in_.read(H2);
+	
+	
+	if(current_tfgJoint[0] > 0.065){
+		current_tfgJoint[0] = current_tfgJoint[0] - 0.000001;	
+	}
+	//std::cout<<current_tfgJoint[0]<<std::endl;
+	tfgJointOutput_.write(current_tfgJoint);
 
-	std::cout<<H1<<std::endl;
+
   //port_output_end_effector_pose_.write(port_current_end_effector_pose_);
 }
 

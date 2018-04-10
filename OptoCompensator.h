@@ -63,7 +63,8 @@ class OptoCompensator : public RTT::TaskContext {
 		RTT::OutputPort<geometry_msgs::Pose> port_SensorPose_out_;
 
 		RTT::InputPort<force_control_msgs::ToolGravityParam> port_current_tool_gravity_param_;
-
+		
+		
 		KDL::Wrench force_offset_;
 		geometry_msgs::Vector3 force_zero;
 		geometry_msgs::Pose force_zero_position;
@@ -86,6 +87,8 @@ class OptoCompensator : public RTT::TaskContext {
 		geometry_msgs::Vector3 weightInBpos_;
 		geometry_msgs::Vector3  zeroing_offset_;
 		geometry_msgs::Quaternion wrench2sensor_R_param_;
+		
+
 };
 
 #endif // OPTOCOMPENSATOR_H_

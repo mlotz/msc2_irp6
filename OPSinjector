@@ -13,7 +13,7 @@ path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConf
 relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
 path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
-hardware ="" # "no" / ""
+hardware ="no" # "no" / ""
 
 perform_inject = 1;
 #path_to_logger_config= os.path.abspath(relpath_to_logger_config)
@@ -76,10 +76,8 @@ if perform_inject:
 
 
 		if 1:		
-			print '## Load an OptoforceComponent component'
 			print 'loadComponent("HandForce1","CustomOptoforceComponent")'
 
-			print '## Give it a periodic activity'
 			print 'setActivity("HandForce1",0.001,3,ORO_SCHED_RT)'
 			print 'HandForce1.loadService("rosparam");'
 			print 'HandForce1.rosparam.getAll();'
@@ -92,10 +90,8 @@ if perform_inject:
 
 
 		if 1:
-			print '## Load an OptoforceComponent component'
 			print 'loadComponent("HandForce2","CustomOptoforceComponent")'
 
-			print '## Give it a periodic activity'
 			print 'setActivity("HandForce2",0.001,3,ORO_SCHED_RT)'
 			print 'HandForce2.loadService("rosparam");'
 			print 'HandForce2.rosparam.getAll();'
@@ -178,9 +174,13 @@ if perform_inject:
 		print 'connect("OptoCompensator1.OutputCompensatedForce", "OptoController.port_HandForce1_in", ConnPolicy())'
 		print 'connect("OptoCompensator2.OutputCompensatedForce", "OptoController.port_HandForce2_in", ConnPolicy())'
 		print 'connect("OptoController.CurrentEndEffectorPose", "Irp6pmForwardKinematic.WristOutputPose", ConnPolicy())'
+		print 'connect("Irp6ptfgM2J.JointPosition", "OptoController.tfgJointInput", ConnPolicy())'
+		print 'connect("OptoController.tfgJointOutput", "Irp6ptfgJ2M.JointPosition", ConnPolicy())'
 		print 'stream("OptoController.OutputEndEffectorPose", ros.comm.topic("/optoController/OutputPose"))'
+		#print 'stream("OptoController.tfgJointOutput", ros.comm.topic("/optoController/tfgJointOutput"))'
+		print 'connect("OptoController.GeneratorActiveOut","Irp6pSupervisor.GeneratorActiveIn", ConnPolicy())'
 		print 'OptoController.configure'
-		print 'repoOptoController.setPeriod(0.002)'
+		print 'OptoController.setPeriod(0.002)'
 	
 		print '\n//END_OF_INJECTION'
 
