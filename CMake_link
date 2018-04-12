@@ -1,3 +1,7 @@
+## ../CMakeList.txt from src git repository
+## ln  ../CMakeLists.txt ./CMake_link
+## ls -li  ../CMakeLists.txt ./CMake_link
+
 cmake_minimum_required(VERSION 2.8.3)
 project(msc_mlotz_pkg)
 
