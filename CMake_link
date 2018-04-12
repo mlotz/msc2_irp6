@@ -1,0 +1,91 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(msc_mlotz_pkg)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  common_headers 
+  rtt_ros 
+  cmake_modules
+)
+
+
+find_package(OROCOS-RTT REQUIRED)
+include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${USE_OROCOS_INCLUDE_DIRS})
+
+orocos_component(${PROJECT_NAME} src/test_reg.cpp)
+
+##Optoforce dummy
+
+
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp rtt_ros rtt_roscomm geometry_msgs sensor_msgs optoforce_can can_driver)
+
+find_package(Eigen3 REQUIRED)
+
+include_directories(include ${catkin_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+
+orocos_component(CustomOptoforceComponent src/CustomOptoforceComponent.cpp)
+
+target_link_libraries(CustomOptoforceComponent ${catkin_LIBRARIES})
+
+
+##Optoforce dummy//
+
+##OptoCompensator
+
+
+find_package(catkin REQUIRED COMPONENTS rtt_ros geometry_msgs eigen_conversions kdl_conversions force_control_msgs)
+
+find_package(OROCOS-RTT REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(orocos_kdl REQUIRED)
+
+include_directories(${catkin_INCLUDE_DIRS}  ${EIGEN3_INCLUDE_DIR})
+
+
+
+orocos_component(optoforce_compensator_component src/OptoCompensator.cpp)
+target_link_libraries(optoforce_compensator_component ${catkin_LIBRARIES})
+##rvizMarkers library
+add_library(customLibRviz src/rvizMarkers.cpp)
+target_link_libraries(optoforce_compensator_component customLibRviz)
+
+##Tomek
+orocos_component(slower_force_transformation src/SlowerForceTransformation.cpp)
+target_link_libraries(slower_force_transformation ${catkin_LIBRARIES})
+
+
+
+##OptoCompensator//
+
+#OptoController
+orocos_component(optoforce_controller_component src/OptoController.cpp)
+target_link_libraries(optoforce_controller_component ${catkin_LIBRARIES})
+#actionlib
+find_package(catkin REQUIRED COMPONENTS actionlib_msgs)
+add_action_files(
+  DIRECTORY action
+  FILES startOptoController.action
+)
+generate_messages(
+  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
+)
+catkin_package(
+  CATKIN_DEPENDS actionlib_msgs
+)
+#Optocontroller//
+
+
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
+orocos_generate_package()
