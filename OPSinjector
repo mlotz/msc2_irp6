@@ -13,7 +13,7 @@ path_to_logger_config = "/home/mlotz/msc2_ws_irp6/src/msc_mlotz_pkg/src/compConf
 relpath_to_logger_config ="compConfigs/repoUniConf.cpf"
 path_to_irp_base_bringup = "/opt/ws_irp6_sim/share/irp6_bringup/"
 robot_name = "p" # "p" / "ot"
-hardware ="no" # "no" / ""
+hardware ="" # "no" / ""
 
 perform_inject = 1;
 #path_to_logger_config= os.path.abspath(relpath_to_logger_config)
@@ -181,6 +181,7 @@ if perform_inject:
 		print 'connect("OptoController.GeneratorActiveOut","Irp6pSupervisor.GeneratorActiveIn", ConnPolicy())'
 		print 'OptoController.configure'
 		print 'OptoController.setPeriod(0.002)'
+		print 'OptoController.loadService("actionlib")'
 	
 		print '\n//END_OF_INJECTION'
 
