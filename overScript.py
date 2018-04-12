@@ -9,6 +9,7 @@ from visualization_msgs.msg import Marker
 from math import *
 from geometry_msgs.msg import *
 from tf.transformations import *
+from msc_mlotz_pkg.msg import *
 # DEMO FUNCTIONS
 
 # POSTUMENT DEMOS
@@ -848,6 +849,19 @@ def Ttest():
 	current = irpos.get_HandForce2()
 	print current
 
+def Tsig():
+	irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
+	print "Sending singling to OptoController"
+	goal = startOptoControllerGoal()
+	goal.OptoGoal = 7
+	client = actionlib.SimpleActionClient('/optoController/commandLine/cancel', startOptoControllerAction)
+	client.wait_for_server()
+	print 'serv';
+	
+
+	client.send_goal(goal)
+
+
 
 
 #MAIN
@@ -917,3 +931,5 @@ if __name__ == '__main__':
 		Ttest()
 	elif sys.argv[1]=="Tholder":
 		Tholder()
+	elif sys.argv[1]=="Tsig":
+		Tsig()

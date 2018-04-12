@@ -52,6 +52,12 @@ OptoController::OptoController(const std::string& name)
   
   this->ports()->addPort("tfgJointInput", tfgJointInput_);
   this->ports()->addPort("tfgJointOutput", tfgJointOutput_);
+
+  as_.addPorts(this->provides());
+ 
+  this->addEventPort(command_port_, boost::bind(&OptoController::commandCB, this));
+  as_.registerGoalCallback(boost::bind(&OptoController::executeCB, this, _1));
+  //as_.registerCancelCallback(boost::bind(&InternalSpaceSplineTrajectoryAction::cancelCB, this, _1));
 }
 
 OptoController::~OptoController() {
@@ -65,11 +71,17 @@ bool OptoController::startHook() {
 	//bool is_synchronised = true;
 	tfgJointInput_.read(current_tfgJoint);
 	port_generator_active_.write(true);
+	as_.start();
+
+	goal_active_ = false;
+	enable_ = true;	
+	
   	return true;
 }
 
 void OptoController::stopHook() {
   port_generator_active_.write(false);
+  //as_.stop();
 }
 
 void OptoController::updateHook() {
@@ -95,6 +107,16 @@ double OptoController::fcl(const double & rdam, const double & inertia,
                             const double & dvel, const double & pvel) {
   return ((rdam * (fd - fm) + dvel) * step_duration_ + rdam * inertia * pvel)
       / (step_duration_ + rdam * inertia);
+}
+
+void OptoController::executeCB(GoalHandle gh) {
+	std::cout<<"i hear you goal"<<std::endl;
+	return;
+}
+
+void OptoController::commandCB() {
+	std::cout<<"i hear you command"<<std::endl;
+	return;
 }
 
 ORO_CREATE_COMPONENT(OptoController)

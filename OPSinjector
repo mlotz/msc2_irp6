@@ -182,6 +182,7 @@ if perform_inject:
 		print 'OptoController.configure'
 		print 'OptoController.setPeriod(0.002)'
 		print 'OptoController.loadService("actionlib")'
+		print 'OptoController.actionlib.connect("/optoController/commandLine")'
 	
 		print '\n//END_OF_INJECTION'
 

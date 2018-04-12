@@ -32,6 +32,7 @@
 #define OPTOCONTROLLER_H_
 #include <rtt/TaskContext.hpp>
 #include <rtt/Port.hpp>
+#include <rtt/Property.hpp>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Vector3Stamped.h>
@@ -41,9 +42,15 @@
 #include <force_control_msgs/ForceControl.h>
 #include <string>
 
+#include "rtt_actionlib/rtt_actionlib.h"
+#include "rtt_actionlib/rtt_action_server.h"
+#include "msc_mlotz_pkg/startOptoControllerAction.h"
 
 
 class OptoController : public RTT::TaskContext {
+	
+  	
+
  public:
   explicit OptoController(const std::string& name);
   virtual ~OptoController();
@@ -71,10 +78,20 @@ class OptoController : public RTT::TaskContext {
   RTT::OutputPort<Eigen::VectorXd> tfgJointOutput_;
   Eigen::VectorXd current_tfgJoint;
 
+  RTT::InputPort<msc_mlotz_pkg::startOptoControllerAction> command_port_;
 
   KDL::Frame cl_ef_pose_kdl_;
   KDL::Twist p_vel_;
   double step_duration_;
+
+ //Action lib;
+	rtt_actionlib::RTTActionServer<msc_mlotz_pkg::startOptoControllerAction> as_;
+	 typedef actionlib::ServerGoalHandle<msc_mlotz_pkg::startOptoControllerAction> GoalHandle;
+	bool goal_active_;
+  	GoalHandle activeGoal_;
+	bool enable_;
+	void executeCB(GoalHandle gh);
+	void commandCB();
 };
 
 #endif // OPTOCONTROLLER_H_
