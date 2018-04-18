@@ -76,18 +76,18 @@ target_link_libraries(slower_force_transformation ${catkin_LIBRARIES})
 orocos_component(optoforce_controller_component src/OptoController.cpp)
 target_link_libraries(optoforce_controller_component ${catkin_LIBRARIES})
 #actionlib
-find_package(catkin REQUIRED COMPONENTS rtt_actionlib rtt_actionlib_msgs actionlib)
-add_action_files(
-  DIRECTORY action
-  FILES startOptoController.action
-)
-
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
-)
-catkin_package(
-  CATKIN_DEPENDS rtt_actionlib_msgs
-)
+#find_package(catkin REQUIRED COMPONENTS rtt_actionlib rtt_actionlib_msgs actionlib)
+#add_action_files(
+#  DIRECTORY action
+#  FILES startOptoController.action
+#)
+#
+#generate_messages(
+#  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
+#)
+#catkin_package(
+#  CATKIN_DEPENDS rtt_actionlib_msgs
+#)
 #Optocontroller//
 
 

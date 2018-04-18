@@ -173,16 +173,18 @@ if perform_inject:
 		print 'loadComponent("OptoController","OptoController")'
 		print 'connect("OptoCompensator1.OutputCompensatedForce", "OptoController.port_HandForce1_in", ConnPolicy())'
 		print 'connect("OptoCompensator2.OutputCompensatedForce", "OptoController.port_HandForce2_in", ConnPolicy())'
-		print 'connect("OptoController.CurrentEndEffectorPose", "Irp6pmForwardKinematic.WristOutputPose", ConnPolicy())'
+		print 'connect("OptoController.CurrentEndEffectorPose", "Irp6pmForwardKinematic.EndEffectorOutputPose", ConnPolicy())'
 		print 'connect("Irp6ptfgM2J.JointPosition", "OptoController.tfgJointInput", ConnPolicy())'
 		print 'connect("OptoController.tfgJointOutput", "Irp6ptfgJ2M.JointPosition", ConnPolicy())'
 		print 'stream("OptoController.OutputEndEffectorPose", ros.comm.topic("/optoController/OutputPose"))'
 		#print 'stream("OptoController.tfgJointOutput", ros.comm.topic("/optoController/tfgJointOutput"))'
+		print 'connect("OptoController.OutputEndEffectorPose","Irp6pmInverseKinematic.InputEndEffectorPose", ConnPolicy())'
 		print 'connect("OptoController.GeneratorActiveOut","Irp6pSupervisor.GeneratorActiveIn", ConnPolicy())'
-		print 'OptoController.configure'
+		
 		print 'OptoController.setPeriod(0.002)'
 		print 'OptoController.loadService("actionlib")'
 		print 'OptoController.actionlib.connect("/optoController/commandLine")'
+		print 'OptoController.configure'
 	
 		print '\n//END_OF_INJECTION'
 

@@ -36,62 +36,68 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Vector3.h>
 
 #include <Eigen/Dense>
 #include <kdl/frames.hpp>
 #include <force_control_msgs/ForceControl.h>
 #include <string>
 
-#include "rtt_actionlib/rtt_actionlib.h"
-#include "rtt_actionlib/rtt_action_server.h"
-#include "msc_mlotz_pkg/startOptoControllerAction.h"
+//#include "rtt_actionlib/rtt_actionlib.h"
+//#include "rtt_actionlib/rtt_action_server.h"
+//#include "msc_mlotz_pkg/startOptoControllerAction.h"
+//#include "msc_mlotz_pkg/startOptoControllerActionGoal.h"
 
 
 class OptoController : public RTT::TaskContext {
-	
-  	
+	public:
+	explicit OptoController(const std::string& name);
+	virtual ~OptoController();
+	virtual bool configureHook();
+	virtual bool startHook();
+	virtual void stopHook();
+	void updateHook();
 
- public:
-  explicit OptoController(const std::string& name);
-  virtual ~OptoController();
+	double fcl(const double & rdam, const double & inertia, const double & fm, const double & fd, const double & dvel, const double & pvel);
 
-  virtual bool configureHook();
-  virtual bool startHook();
-  virtual void stopHook();
-  void updateHook();
+	private:
+	RTT::InputPort<geometry_msgs::Pose> port_current_end_effector_pose_;
+	RTT::OutputPort<geometry_msgs::Pose> port_output_end_effector_pose_;
 
-  double fcl(const double & rdam, const double & inertia, const double & fm,
-             const double & fd, const double & dvel, const double & pvel);
+	RTT::InputPort<geometry_msgs::Vector3Stamped> port_HandForce1_in_;
+	RTT::InputPort<geometry_msgs::Vector3Stamped> port_HandForce2_in_;
 
- private:
-  RTT::InputPort<geometry_msgs::Pose> port_current_end_effector_pose_;
-  RTT::OutputPort<geometry_msgs::Pose> port_output_end_effector_pose_;
-
-  RTT::InputPort<geometry_msgs::Vector3Stamped> port_HandForce1_in_;
-  RTT::InputPort<geometry_msgs::Vector3Stamped> port_HandForce2_in_;
-
-  RTT::InputPort<force_control_msgs::ForceControl> port_current_fcl_param_;
-  RTT::OutputPort<bool> port_generator_active_;
-  RTT::InputPort<bool> port_is_synchronised_;
+	RTT::InputPort<force_control_msgs::ForceControl> port_current_fcl_param_;
+	RTT::OutputPort<bool> port_generator_active_;
+	RTT::InputPort<bool> port_is_synchronised_;
   
-  RTT::InputPort<Eigen::VectorXd> tfgJointInput_;
-  RTT::OutputPort<Eigen::VectorXd> tfgJointOutput_;
-  Eigen::VectorXd current_tfgJoint;
+	RTT::InputPort<Eigen::VectorXd> tfgJointInput_;
+	RTT::OutputPort<Eigen::VectorXd> tfgJointOutput_;
+	Eigen::VectorXd current_tfgJoint;
+	double tfgDelta;
 
-  RTT::InputPort<msc_mlotz_pkg::startOptoControllerAction> command_port_;
+	
+  
 
-  KDL::Frame cl_ef_pose_kdl_;
-  KDL::Twist p_vel_;
-  double step_duration_;
+	KDL::Frame cl_ef_pose_kdl_;
+	KDL::Twist p_vel_;
+	double step_duration_;
 
- //Action lib;
-	rtt_actionlib::RTTActionServer<msc_mlotz_pkg::startOptoControllerAction> as_;
-	 typedef actionlib::ServerGoalHandle<msc_mlotz_pkg::startOptoControllerAction> GoalHandle;
-	bool goal_active_;
-  	GoalHandle activeGoal_;
-	bool enable_;
-	void executeCB(GoalHandle gh);
-	void commandCB();
+	geometry_msgs::Pose cartesianPoseVar;
+
+	//Action lib;
+	//RTT::InputPort<msc_mlotz_pkg::startOptoControllerAction> command_port_;
+	//rtt_actionlib::RTTActionServer<msc_mlotz_pkg::startOptoControllerAction> as_;
+	//typedef actionlib::ServerGoalHandle<msc_mlotz_pkg::startOptoControllerAction> GoalHandle;
+	//typedef boost::shared_ptr<const msc_mlotz_pkg::startOptoControllerGoal> Goal;
+	//bool goal_active_;
+  	//GoalHandle activeGoal_;
+	//bool enable_;
+	//void goalCB(GoalHandle gh);
+	//void commandCB();
+	//void cancelCB(GoalHandle gh);
+
+	//msc_mlotz_pkg::startOptoControllerFeedback feedback_;
 };
 
 #endif // OPTOCONTROLLER_H_

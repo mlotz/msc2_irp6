@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from irpos import *
+#from msc_mlotz_pkg.msg import *
 
 class exirpos(IRPOS):
 	
@@ -23,6 +24,9 @@ class exirpos(IRPOS):
 	HandForce2_subscriber = None
 	last_HandForce2 = None	
 	HandForce2_lock = threading.Lock()
+
+	#actionlib
+	opto_client = None
 
 	def WristOutputPose_cartesian_position_callback(self, data):
 		self.WristOutputPose_lock.acquire()
@@ -49,6 +53,9 @@ class exirpos(IRPOS):
 		#print self.WristOutputPose_cartesian_position_subscriber
 		print(self.OKGREEN+'[EXIRPOS] Class initiated.'+self.ENDC)
 		IRPOS.__init__(self, nodeName, robotName, robotJointNumbers, scheme_name)
+		#actionlib
+		#self.opto_client = actionlib.SimpleActionClient('/optoController/commandLine', startOptoControllerAction)
+		#self.opto_client.wait_for_server()
 		
 		
 

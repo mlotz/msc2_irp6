@@ -9,7 +9,7 @@ from visualization_msgs.msg import Marker
 from math import *
 from geometry_msgs.msg import *
 from tf.transformations import *
-from msc_mlotz_pkg.msg import *
+
 # DEMO FUNCTIONS
 
 # POSTUMENT DEMOS
@@ -852,14 +852,17 @@ def Ttest():
 def Tsig():
 	irpos = exirpos("IRpOS", "Irp6p", 6, "irp6p_manager")
 	print "Sending singling to OptoController"
-	goal = startOptoControllerGoal()
-	goal.OptoGoal = 7
-	client = actionlib.SimpleActionClient('/optoController/commandLine/cancel', startOptoControllerAction)
-	client.wait_for_server()
-	print 'serv';
+	#goal = startOptoControllerActionGoal()
+	#cartesianGoal = CartesianTrajectoryGoal()
+	#goal.goal.OptoGoal = 7
+	#print goal
+	#print cartesianGoal;
+	#client = actionlib.SimpleActionClient('/optoController/commandLine', startOptoControllerAction)
+	#client.wait_for_server()
+	
 	
 
-	client.send_goal(goal)
+	#client.send_goal(goal)
 
 
 
