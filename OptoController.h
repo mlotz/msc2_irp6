@@ -75,6 +75,7 @@ class OptoController : public RTT::TaskContext {
 	RTT::OutputPort<Eigen::VectorXd> tfgJointOutput_;
 	Eigen::VectorXd current_tfgJoint;
 	double tfgDelta;
+	double cartesianYDelta;
 
 	
   

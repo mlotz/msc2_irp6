@@ -16,6 +16,8 @@ gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MA
 gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MASTER_URI=http://gerwazy:11311; export ROS_IP=192.168.18.13; rostopic echo /irp6p_tfg/joint_state; bash' &
 gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MASTER_URI=http://gerwazy:11311; export ROS_IP=192.168.18.13; echo "overScript command terminal::"; bash' &
 gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MASTER_URI=http://gerwazy:11311; export ROS_IP=192.168.18.13; rostopic echo /irp6p_arm/cartesian_position; bash' &
+gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MASTER_URI=http://gerwazy:11311; export ROS_IP=192.168.18.13; rostopic echo /optoCompensator1/force_out; bash' &
+gnome-terminal -x bash -c 'source ~/msc2_ws_irp6/devel/setup.bash; export ROS_MASTER_URI=http://gerwazy:11311; export ROS_IP=192.168.18.13; rostopic echo /optoCompensator2/force_out; bash' &
 
 
 

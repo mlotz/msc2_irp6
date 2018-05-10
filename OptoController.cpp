@@ -52,6 +52,7 @@ OptoController::OptoController(const std::string& name) : RTT::TaskContext(name,
 	this->ports()->addPort("tfgJointOutput", tfgJointOutput_);
 
 	tfgDelta = -0.000001;
+	cartesianYDelta = -0.004;
 
 //Actionlib
   //as_.addPorts(this->provides());
@@ -99,6 +100,58 @@ void OptoController::updateHook() {
 	geometry_msgs::Vector3Stamped H1,H2;
 
 
+
+	
+
+
+
+	
+	
+	//--------------------------TGF section----------
+
+
+	//port_current_fcl_param_.read(fcl_param);
+	port_HandForce1_in_.read(H1);
+	port_HandForce2_in_.read(H2);
+	//Goal g = activeGoal_.getGoal();
+	
+	//msc_mlotz_pkg::startOptoControllerResult res;
+	//res.OptoResult = 0;
+	//activeGoal_.setSucceeded(res, "");
+	if(tfgDelta<0.0){
+		if(current_tfgJoint[0] > 0.062){
+			//std::cout<<H1.vector.z<<"||"<<H2.vector.z<<std::endl;
+			//asd
+			if(H1.vector.z<0.8 || H2.vector.z<0.8){
+			current_tfgJoint[0] = current_tfgJoint[0] + tfgDelta;
+			}	
+		}
+		else
+		{
+		tfgDelta = -tfgDelta;
+		}
+	} else
+	{
+		if(current_tfgJoint[0] < 0.075){
+			current_tfgJoint[0] = current_tfgJoint[0] + 4*tfgDelta;	
+		}
+		else
+		{
+		tfgDelta = -tfgDelta;
+		}
+	}
+
+	
+	
+	// ------------ Cartesian section ---------
+	cartesianYDelta = 0.01*H1.vector.z - 0.003 ;
+	if (cartesianYDelta > 0.004) {cartesianYDelta = 0.004;}
+	if (cartesianYDelta < -0.004) {cartesianYDelta = -0.004;}
+	if(H1.vector.z>0.8 && H2.vector.z>0.8){cartesianYDelta = 0;}
+	
+	
+
+
 	//DEBUG_Data
 	//Waiting for actionlib
 	force_control_msgs::ForceControl fcl_param;
@@ -121,7 +174,7 @@ void OptoController::updateHook() {
 	fcl_param.wrench.torque.y=0.0;
 	fcl_param.wrench.torque.z=0.0;
 	fcl_param.twist.linear.x=0.0;
-	fcl_param.twist.linear.y=0.0;
+	fcl_param.twist.linear.y=cartesianYDelta;
 	fcl_param.twist.linear.z=0.0;
 	fcl_param.twist.angular.x=0.0;
 	fcl_param.twist.angular.y=0.0;
@@ -184,57 +237,16 @@ void OptoController::updateHook() {
 
 	port_output_end_effector_pose_.write(cl_ef_pose);
 	
-	//--------------------------TGF section----------
 
-
-	//port_current_fcl_param_.read(fcl_param);
-	port_HandForce1_in_.read(H1);
-	port_HandForce2_in_.read(H2);
-	//Goal g = activeGoal_.getGoal();
-	
-	//msc_mlotz_pkg::startOptoControllerResult res;
-	//res.OptoResult = 0;
-	//activeGoal_.setSucceeded(res, "");
-	if(tfgDelta<0.0){
-		if(current_tfgJoint[0] > 0.065){
-			//std::cout<<H1.vector.z<<"||"<<H2.vector.z<<std::endl;
-			//asd
-			if(H1.vector.z<0.4 || H2.vector.z<0.4){
-			current_tfgJoint[0] = current_tfgJoint[0] + tfgDelta;
-			}	
-		}
-		else
-		{
-		tfgDelta = -tfgDelta;
-		}
-	} else
-	{
-		if(current_tfgJoint[0] < 0.075){
-			current_tfgJoint[0] = current_tfgJoint[0] + 4*tfgDelta;	
-		}
-		else
-		{
-		tfgDelta = -tfgDelta;
-		}
-	}
-
-
-
-	//0.60625134692
-/*
-	if(cartesianPoseVar.position.x < 0.65){
-		cartesianPoseVar.position.x = cartesianPoseVar.position.x + 0.0000001;	
-	}
-*/
 
 	
 	//feedback_.OptoState = 7;
 	//activeGoal_.publishFeedback(feedback_);
 	tfgJointOutput_.write(current_tfgJoint);
-	//port_output_end_effector_pose_.write(cartesianPoseVar);
+	
 
 
-  //port_output_end_effector_pose_.write(port_current_end_effector_pose_);
+ 
 }
 
 double OptoController::fcl(const double & rdam, const double & inertia, const double & fm, const double & fd, const double & dvel, const double & pvel) {

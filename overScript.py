@@ -109,6 +109,15 @@ def TposC():
 	irpos.move_along_joint_trajectory(joint_trajectory)
 	
 	print "Irp6p: Behavior: TposC - Topdown."
+def TposGrab():
+	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
+
+	print "Irp6p: Behavior: T2 - Starting."
+	joint_trajectory = [JointTrajectoryPoint([0.0, -1.5707963268, 0.0, 0.0, 4.8123889804 , 1.65079632679], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [], [], rospy.Duration(10.0))]
+	irpos.move_along_joint_trajectory(joint_trajectory)
+	irpos.tfg_to_joint_position(0.074, 5.0)
+	irpos.move_rel_to_cartesian_pose(10.0, Pose(Point(0.0, 0.0, 0.15), Quaternion(0.0, 0.0, 0.0, 1.0)))
+	print "Irp6p: Behavior: TposC - Topdown."
 def TposD():
 	irpos = IRPOS("IRpOS", "Irp6p", 6, "irp6p_manager")
 
@@ -163,7 +172,7 @@ def T6():
 	print "Irp6ot: Behavior: T6 - Grabbing."
 	# grabbed 0.061
 	# dropped 0.065
-	irpos.tfg_to_joint_position(0.074, 10.0)
+	irpos.tfg_to_joint_position(0.074, 5.0)
 	
 	print str(irpos.get_tfg_joint_position())
 
@@ -928,6 +937,8 @@ if __name__ == '__main__':
 		TposB()
 	elif sys.argv[1]=="TposC":
 		TposC()
+	elif sys.argv[1]=="TposGrab":
+		TposGrab()
 	elif sys.argv[1]=="TgetWeightsABC":
 		TgetWeightsABC()
 	elif sys.argv[1]=="Ttest":
